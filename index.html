@@ -1,0 +1,197 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+	<title>MoodSpaces</title> 
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+
+	<!-- jQuery (http://jquery.com) -->	
+	<script src="js/jquery-1.8.2.min.js"></script>
+	
+	<!-- jQuery Mobile (http://jquerymobile.com/) -->
+	<script src="js/jquery.mobile-1.2.0.min.js"></script>
+	<link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
+	
+	<!-- KineticJS (http://www.kineticjs.com/) -->
+	<script src="js/kinetic-v4.0.3.min.js"></script>
+</head> 
+<body> 
+<div data-role="page" id="home">
+	<div data-role="header">
+		<h1>MoodSpaces</h1>
+		<a href="#settings" data-icon="gear" class="ui-btn-right">Settings</a>
+	</div>
+	<div data-role="content">
+		<a href="#new" data-role="button" data-icon="plus" data-theme="b">Enter new mood</a>
+	
+		<!-- More space!!! -->
+		
+		<a href="#moodspots" data-role="button">MoodSpots</a>
+		<a href="#moodpeeps" data-role="button">MoodPeeps</a>
+		<a href="#moodtimes" data-role="button">MoodTimes</a>
+		<a href="#moodtasks" data-role="button" class="ui-disabled">MoodTasks</a>
+	</div>
+</div>
+
+<div data-role="page" id="new" data-add-back-btn="true">
+	<div data-role="header">
+		<h1>Enter new mood</h1>
+	</div>
+	<div data-role="content">	
+		<div id="plutchik" style="text-align: center;"></div>		
+	</div>
+</div>
+
+<div data-role="page" id="moodspots" data-add-back-btn="true">
+	<div data-role="header">
+		<h1>MoodSpots</h1>
+	</div>
+	<div data-role="content">	
+		<p>TODO: mood spots</p>		
+	</div>
+</div>
+
+<div data-role="page" id="moodtimes" data-add-back-btn="true">
+	<div data-role="header">
+		<h1>MoodTimes</h1>
+	</div>
+	<div data-role="content">	
+		<p>Hello world</p>		
+	</div>
+</div>
+
+<div data-role="page" id="moodpeeps" data-add-back-btn="true">
+	<div data-role="header">
+		<h1>MoodPeeps</h1>
+	</div>
+	<div data-role="content">	
+		<p>Hello world</p>		
+	</div>
+</div>
+
+<div data-role="page" id="moodtasks" data-add-back-btn="true">
+	<div data-role="header">
+		<h1>MoodTasks</h1>
+	</div>
+	<div data-role="content">
+		
+	</div>
+</div>
+
+<div data-role="page" id="settings" data-add-back-btn="true">
+	<div data-role="header">
+		<h1>Settings</h1>
+	</div>
+	<div data-role="content">	
+		<p>Settings panel</p>		
+	</div>
+</div>
+
+<script>
+
+$("#new").live('pageshow', function(event) {
+	var d = Math.min($(this).width(), $(this).height()) / 2;
+	
+	var stage = new Kinetic.Stage({
+		container: "plutchik",
+		width: 2 * d,
+		height: 2 * d
+	});
+	
+	var bgLayer = new Kinetic.Layer();
+	var textLayer = new Kinetic.Layer();
+	var pinLayer = new Kinetic.Layer();
+	
+	var moods = [{
+			label: 'terror',
+			color: '#007B33'
+		}, {
+			label: 'amazement',			
+			color: '#0081AB'
+		}, {
+			label: 'grief',
+			color: '#1F6CAD'
+		},{
+			label: 'loathing',
+			color: '#7B4EA3'
+		}, {
+			label: 'rage',
+			color: '#DC0047'
+		}, {
+			label: 'vigilance',
+			color: 'E87200'
+		}, {
+			label: 'ecstacy',
+			color: '#EDC500'
+		}, {
+			label: 'admiration',
+			color: '#7BBD0D'
+		}];
+	for(var j = 0; j < moods.length; j++) {
+		(function() {
+			// copy j's value into the function scope 
+			var i = j;
+			var slice = new Kinetic.Shape({
+				drawFunc: function(context) {
+					context.beginPath();
+					context.moveTo(d, d);
+					context.lineTo(d + d * Math.cos(2 * i * Math.PI / moods.length), d + d * Math.sin(2 * i * Math.PI / moods.length));
+					context.arc(d, d, d, 2 * i * Math.PI / moods.length, 2 * (i + 1) * Math.PI / moods.length);
+					context.closePath();
+					this.fill(context);
+				},
+				fill: moods[i].color
+			});
+			bgLayer.add(slice);
+			
+			var label = new Kinetic.Shape({
+				drawFunc: function(context) {
+					context.save();
+					context.fillStyle = '#FFFFFF';
+					context.font = 'bold 14px sans-serif';
+					context.textAlign = 'center';
+					context.textBaseline = 'middle';
+					context.translate(d + 3*d/5 * Math.cos(2 * (i + 0.5) * Math.PI / moods.length), d + 3*d/5 * Math.sin(2 * (i + 0.5) * Math.PI / moods.length));
+					context.rotate(Math.PI / moods.length * (2 * ((i + 2) % (moods.length / 2)) + 1) - Math.PI / 2); 
+					context.fillText(moods[i].label, 0, 0);
+					context.restore();
+				}
+			});
+			textLayer.add(label);
+		})();
+	}
+	
+	var pin = new Kinetic.Circle({
+		radius: 7,
+		fill: '#808080',
+		stroke: '#000000',
+		strokeWidth: 2,
+		x: d,
+		y: d,
+		draggable: true
+	});
+	
+	pin.on('dragmove', function(event) {
+		var angle = Math.atan((pin.getY() - d) / (pin.getX() - d));
+		var cos = d * Math.cos(angle);
+		var sin = d * Math.sin(angle);
+		var r = Math.sqrt(cos^2 + sin^2);
+		
+		console.log(r);
+		
+		if(r > d) {
+			pin.setOffset(d + cos, d + sin);
+		}
+	});
+	
+	pinLayer.add(pin);
+	
+	stage.add(bgLayer);
+	stage.add(textLayer);
+	stage.add(pinLayer);
+
+});
+	
+
+</script>
+</body>
+</html>
