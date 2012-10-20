@@ -13,10 +13,12 @@ In order to run offline, the application is supposed to be cached by the browser
 	<html lang="en" manifest="app.manifest">
 ```
 
-For this to work properly, manifest files should be served with "content-type: text/cache-manifest" headers. We hope GitHub Pages will take care of it.
+For this to work properly, manifest files should be served with "content-type: text/cache-manifest" headers. GitHub Pages recognizes this type of file and takes care of the headers.
 
-### Canvas
-Plutchik's wheel on the "new mood" page is drawn on a canvas. The draggable pins on the wheel are parts of the canvas as well!
+### Inline SVG
+Plutchik's wheel on the "new mood" page is drawn using inline SVG. This has multiple advantages:
+* SVG is XML, it is part of the DOM, so you can attach listeners to parts of the SVG. This is particularly useful for making parts of the SVG "draggable".
+* It's vectors, what more is there to say?
 
 ### Web SQL & IndexedDB
 The data of this application is stored in a database. WebSQL is supported on most mobile browsers, but specification of this standard has halted. IndexedDB has to take over but is not yet implemented in many systems. In order to prevent this from being an issue, we plan to implement a database abstraction layer.

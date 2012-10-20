@@ -1,6 +1,6 @@
-<!DOCTYPE html> 
-<html lang="en" manifest="app.manifest"> 
-<head> 
+<!DOCTYPE html>
+<html lang="en" manifest="app.manifest">
+<head>
 	<title>MoodSpaces</title> 
 	<meta name="viewport" content="width=device-width, initial-scale=1"> 
 
@@ -11,8 +11,8 @@
 	<script src="js/jquery.mobile-1.2.0.min.js"></script>
 	<link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
 	
-	<!-- KineticJS (http://www.kineticjs.com/) -->
-	<script src="js/kinetic-v4.0.3.min.js"></script>
+	<!-- SVG JavaScript -->
+	<script src="js/svg.js"></script>
 </head> 
 <body> 
 <div data-role="page" id="home">
@@ -23,7 +23,7 @@
 	<div data-role="content">
 		<a href="#new" data-role="button" data-icon="plus" data-theme="b">Enter new mood</a>
 	
-		<!-- More space!!! -->
+		<h4>Stats</h4>
 		
 		<a href="#moodspots" data-role="button">MoodSpots</a>
 		<a href="#moodpeeps" data-role="button">MoodPeeps</a>
@@ -36,8 +36,9 @@
 	<div data-role="header">
 		<h1>Enter new mood</h1>
 	</div>
-	<div data-role="content">	
-		<div id="plutchik" style="text-align: center;"></div>		
+	<div data-role="content">
+		<svg id="plutchik" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-100 -100 200 200">
+		</svg>
 	</div>
 </div>
 
@@ -85,113 +86,6 @@
 		<p>Settings panel</p>		
 	</div>
 </div>
-
-<script>
-
-$("#new").live('pageshow', function(event) {
-	var d = Math.min($(this).width(), $(this).height()) / 2;
-	
-	var stage = new Kinetic.Stage({
-		container: "plutchik",
-		width: 2 * d,
-		height: 2 * d
-	});
-	
-	var bgLayer = new Kinetic.Layer();
-	var textLayer = new Kinetic.Layer();
-	var pinLayer = new Kinetic.Layer();
-	
-	var moods = [{
-			label: 'terror',
-			color: '#007B33'
-		}, {
-			label: 'amazement',			
-			color: '#0081AB'
-		}, {
-			label: 'grief',
-			color: '#1F6CAD'
-		},{
-			label: 'loathing',
-			color: '#7B4EA3'
-		}, {
-			label: 'rage',
-			color: '#DC0047'
-		}, {
-			label: 'vigilance',
-			color: 'E87200'
-		}, {
-			label: 'ecstacy',
-			color: '#EDC500'
-		}, {
-			label: 'admiration',
-			color: '#7BBD0D'
-		}];
-	for(var j = 0; j < moods.length; j++) {
-		(function() {
-			// copy j's value into the function scope 
-			var i = j;
-			var slice = new Kinetic.Shape({
-				drawFunc: function(context) {
-					context.beginPath();
-					context.moveTo(d, d);
-					context.lineTo(d + d * Math.cos(2 * i * Math.PI / moods.length), d + d * Math.sin(2 * i * Math.PI / moods.length));
-					context.arc(d, d, d, 2 * i * Math.PI / moods.length, 2 * (i + 1) * Math.PI / moods.length);
-					context.closePath();
-					this.fill(context);
-				},
-				fill: moods[i].color
-			});
-			bgLayer.add(slice);
-			
-			var label = new Kinetic.Shape({
-				drawFunc: function(context) {
-					context.save();
-					context.fillStyle = '#FFFFFF';
-					context.font = 'bold 14px sans-serif';
-					context.textAlign = 'center';
-					context.textBaseline = 'middle';
-					context.translate(d + 3*d/5 * Math.cos(2 * (i + 0.5) * Math.PI / moods.length), d + 3*d/5 * Math.sin(2 * (i + 0.5) * Math.PI / moods.length));
-					context.rotate(Math.PI / moods.length * (2 * ((i + 2) % (moods.length / 2)) + 1) - Math.PI / 2); 
-					context.fillText(moods[i].label, 0, 0);
-					context.restore();
-				}
-			});
-			textLayer.add(label);
-		})();
-	}
-	
-	var pin = new Kinetic.Circle({
-		radius: 7,
-		fill: '#808080',
-		stroke: '#000000',
-		strokeWidth: 2,
-		x: d,
-		y: d,
-		draggable: true
-	});
-	
-	pin.on('dragmove', function(event) {
-		var angle = Math.atan((pin.getY() - d) / (pin.getX() - d));
-		var cos = d * Math.cos(angle);
-		var sin = d * Math.sin(angle);
-		var r = Math.sqrt(cos^2 + sin^2);
-		
-		console.log(r);
-		
-		if(r > d) {
-			pin.setOffset(d + cos, d + sin);
-		}
-	});
-	
-	pinLayer.add(pin);
-	
-	stage.add(bgLayer);
-	stage.add(textLayer);
-	stage.add(pinLayer);
-
-});
-	
-
-</script>
+<script src="js/moodspaces.js"></script>
 </body>
 </html>
