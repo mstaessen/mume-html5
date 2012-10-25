@@ -298,9 +298,11 @@ SVG.PathData.prototype = SVG.Common.merge({}, {
  ****  SVG CIRCLE  **** 
  **********************/
 
-SVG.Circle = function() {};
+SVG.Circle = function(options) {
+	this.options = options || {};
+};
 SVG.Circle.prototype = SVG.Common.merge({}, SVG.Shape.prototype, {
-	constructor: SVG.Cicle,
+	constructor: SVG.Circle,
 	tagName: 'circle'
 	/* TODO */
 });

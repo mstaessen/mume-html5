@@ -1,8 +1,17 @@
 <!DOCTYPE html>
+<html>
 <html lang="en" manifest="app.manifest">
 <head>
 	<title>MoodSpaces</title> 
-	<meta name="viewport" content="width=device-width, initial-scale=1"> 
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+	
+	<!-- Apple stuff -->
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<link rel="apple-touch-icon" href="img/moodspaces.png"/>
+	<link rel="apple-touch-icon" sizes="72x72" href="img/moodspaces-ipad.png" />
+	<link rel="apple-touch-icon" sizes="114x114" href="img/moodspaces-iphone4.png" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	
 
 	<!-- jQuery (http://jquery.com) -->	
 	<script src="js/jquery-1.8.2.min.js"></script>
@@ -13,6 +22,9 @@
 	
 	<!-- SVG JavaScript -->
 	<script src="js/svg.js"></script>
+
+	<!-- DB JavaScript -->
+	<script src="js/db.js"></script>
 </head> 
 <body> 
 <div data-role="page" id="home">
@@ -39,6 +51,28 @@
 	<div data-role="content">
 		<svg id="plutchik" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-100 -100 200 200">
 		</svg>
+		<form name="mood" action="" method="post">
+			<input type="hidden" name="r" />
+			<input type="hidden" name="phi" />
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<select name="location">
+					<option value="" disabled="disabled">Location</option></select>
+				</div><div class="ui-block-b">
+					<a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
+				</div>
+			</div>
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<select name="activity" placeholder="location">
+					    <option value="" disabled="disabled">Activity</option>
+					</select>
+				</div><div class="ui-block-b">
+					<a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
+				</div>
+			</div>
+			<input type="submit" name="submit" value="Add Entry" data-theme="b">
+		</form>
 	</div>
 </div>
 
