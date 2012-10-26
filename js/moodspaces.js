@@ -1,8 +1,7 @@
-
-
 // Define the "class" (function namespace)
 function MoodSpaces(db) {
 	this.db = db;
+	this.selectedMood = { r: 0, phi: 0 };
 };
 // Define the class members
 MoodSpaces.prototype = {
@@ -44,11 +43,9 @@ Number.prototype.cos = function(angle) {
 var app = new MoodSpaces();
 $("#new").live('pageshow', function(event) {
 	var wheel = $('#plutchik');
-	var maxSize = Math.min(wheel.parent().width(), wheel.parent().height());
-	wheel.css('width', maxSize + 'px');
-	wheel.css('height', maxSize + 'px');
-	
-	
+	var radius = Math.min(wheel.parent().width(), wheel.parent().height()) / 2;
+	wheel.css('width', (2 * radius) + 'px');
+	wheel.css('height', (2 * radius) + 'px');
 	
 	if(wheel.children().length == 0) {
 		var moods = app.MOODS;
@@ -63,6 +60,7 @@ $("#new").live('pageshow', function(event) {
 				'fill': moods[j].color
 			}).getElement();
 			wheel.append(path);
+			
 			var text = new SVG.Text(moods[j].label, {
 				'x': (60).cos((j + 0.5) * unitAngle),
 				'y': (60).sin((j + 0.5) * unitAngle),
@@ -81,6 +79,7 @@ $("#new").live('pageshow', function(event) {
 			wheel.append(text);
 		}
 	}
+	
 	var pin = new SVG.Circle({
 		'cx': 0,
 		'cy': 0,
@@ -94,19 +93,55 @@ $("#new").live('pageshow', function(event) {
 	pin = $(pin);
 	
 	var dragging = false;
-	pin.bind("vmousedown", function(event){
+	wheel.bind("vmousedown", function (event){
+		if (event.target.tagName != "circle") {
+			return;
+		}
+		
 		dragging = true;
 		console.log('start dragging');
+		event.stopPropagation();
 	});
 	
-	pin.bind("vmousemove", function (event) {
-		if(dragging) {
-			console.log(event);
+	wheel.bind("vmousemove", function (event) {
+		if(!dragging) {
+			return;
 		}
+		
+		var offset = wheel.offset();
+		var x = event.pageX - Math.round(offset.left),
+			y = event.pageY - Math.round(offset.top);
+		console.log('dragging @ ' + x  + 'x' + y);
+		
+		x -= radius;
+		y -= radius;
+			
+		var r = Math.sqrt(x * x + y * y) / radius,
+			phi = Math.atan2(-y, x);
+		console.log('polar coordinates: r=' + r + ' phi=' + phi);
+		
+		if (r > 1) {
+			console.log('outside of circle, ignoring event');
+			event.stopPropagation();
+			return;
+		}
+		
+		app.selectedMood.r = r;
+		app.selectedMood.phi = phi;
+		
+		pin[0].setAttributeNS(null, 'cx', (100 * x / radius));
+		pin[0].setAttributeNS(null, 'cy', (100 * y / radius));
+		
+		event.stopPropagation();
 	});
 	
-	pin.bind("vmouseup", function(event){
+	wheel.bind("vmouseup", function (event){
+		if (!dragging) {
+			return;
+		}
+		
 		dragging = false;
 		console.log('stop dragging');
+		event.stopPropagation();
 	});
 });
