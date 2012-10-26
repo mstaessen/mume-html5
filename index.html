@@ -12,6 +12,8 @@
 	<link rel="apple-touch-icon" sizes="114x114" href="img/moodspaces-iphone4.png" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	
+	<!-- allow inheritance -->
+	<script src="js/inheritance.js"></script>
 
 	<!-- jQuery (http://jquery.com) -->	
 	<script src="js/jquery-1.8.2.min.js"></script>
@@ -25,6 +27,23 @@
 
 	<!-- DB JavaScript -->
 	<script src="js/db.js"></script>
+	
+	<!-- MoodSpaces scripts -->
+	<script src="js/moodspaces/common.js"></script>
+	<script src="js/moodspaces/main.js"></script>
+	<script src="js/moodspaces/newmood.js"></script>
+	<script src="js/moodspaces/moodspots.js"></script>
+	<script src="js/moodspaces/moodtimes.js"></script>
+	<script src="js/moodspaces/moodpeeps.js"></script>
+	<script src="js/moodspaces/moodtasks.js"></script>
+	<script src="js/moodspaces/settingsview.js"></script>
+	<script src="js/moodspaces.js"></script>
+	
+	<script>
+	$(document).ready(function(){
+		new MoodSpaces();
+	});
+	</script>
 </head> 
 <body> 
 <div data-role="page" id="home">
@@ -120,6 +139,5 @@
 		<p>Settings panel</p>		
 	</div>
 </div>
-<script src="js/moodspaces.js"></script>
 </body>
 </html>

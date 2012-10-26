@@ -1,0 +1,2 @@
+var MSSettingsView = MSView.extend({
+});

@@ -1,0 +1,2 @@
+var MSMoodTasksView = MSView.extend({
+});
