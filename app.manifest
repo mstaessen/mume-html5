@@ -18,6 +18,15 @@ js/jquery.mobile-1.2.0.min.js
 js/moodspaces.js
 js/svg.js
 js/db.js
+js/inheritance.js
+js/moodspaces/common.js
+js/moodspaces/settingsview.js
+js/moodspaces/newmood.js
+js/moodspaces/moodpeeps.js
+js/moodspaces/moodtimes.js
+js/moodspaces/moodspots.js
+js/moodspaces/moodtasks.js
+js/moodspaces/main.js
 
 NETWORK:
 http://maps.gstatic.com/
