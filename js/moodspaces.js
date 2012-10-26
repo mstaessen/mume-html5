@@ -8,6 +8,7 @@ var MoodSpaces = Class.extend({
 		this.moodSpotsView = new MSMoodSpotsView(this);
 		this.moodTimesView = new MSMoodTimesView(this);
 		this.moodTasksView = new MSMoodTasksView(this);
+		this.settingsView = new MSSettingsView(this);
 		
 		this.currentView = this.mainView;
 		
@@ -31,18 +32,23 @@ var MoodSpaces = Class.extend({
 		$('#moodtasks').live('pageshow', function(event) {
 			_this.moodTasksView.load();
 		});
+		$('#settings').live('pageshow', function(event) {
+			_this.settingsView.load();
+		});
 		
 		var hash = document.location.hash;
 		if (hash == '#new') {
-			_this.newMoodView.load();
+			this.newMoodView.load();
 		} else if (hash == '#moodpeeps') {
-			_this.moodPeepsView.load();
+			this.moodPeepsView.load();
 		} else if (hash == '#moodtimes') {
-			_this.moodTimesView.load();
+			this.moodTimesView.load();
 		} else if (hash == '#moodspots') {
-			_this.moodSpotsView.load();
+			this.moodSpotsView.load();
 		} else if (hash == '#moodtasks') {
-			_this.moodTasksView.load();
+			this.moodTasksView.load();
+		} else if (hash == '#settings') {
+			this.settingsView.load();
 		}
 	},
 	log: function(txt) {
