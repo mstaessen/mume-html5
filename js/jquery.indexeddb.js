@@ -222,7 +222,7 @@
 					} catch (e) {
 						idbIndex = null;
 					}
-					//console.log(idbIndex, index);
+					//console.logidbIndex, index);
 					return {
 						"each": function(callback, range, direction){
 							return wrap.cursor(function(){
@@ -244,6 +244,7 @@
 							}, callback);
 						},
 						"get": function(key){
+							console.log(idbIndex);
 							return wrap.request(
 								idbIndex.get(key)
 							);
@@ -430,7 +431,7 @@
 				},
 				"transaction": function(storeNames, mode){
 					!$.isArray(storeNames) && (storeNames = [storeNames]);
-					mode = mode || "readwrite";
+					mode = (mode === "readwrite" || mode === "readonly") ? mode : "readwrite";
 					return $.Deferred(function(dfd){
 						dbPromise.then(function(db, e){
 							try {
@@ -483,7 +484,7 @@
 									dfd.rejectWith(trans, [e, e]);
 								}
 							}
-							me.transaction(storeName, (mode === "readonly" || mode === "readwrite") ? mode : "readwrite").then(function(){
+							me.transaction(storeName, (mode === "readwrite" || mode === "readonly") ? mode : "readwrite").then(function(){
 								//console.log"Transaction completed");
 								// Nothing to do when transaction is complete
 							}, function(err, e){
@@ -504,7 +505,7 @@
 												db.close();
 											}
 										};
-										me.transaction(storeName, (mode === "readonly" || mode === "readwrite") ? mode : "readwrite").then(function(){
+										me.transaction(storeName, (mode === "readwrite" || mode === "readonly") ? mode : "readwrite").then(function(){
 											//console.log"Transaction completed when trying to create object store");
 											// Nothing much to do
 										}, function(err, e){

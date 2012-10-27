@@ -71,12 +71,15 @@ var DataBase = Class.extend({
 	 *  On failure: onError(error) is called
 	 */
 	hasMoodPlace: function(name, onSuccess, onError) {
-		//console.log($.indexedDB(this.dbname).objectStore(this.keys['moodPlaces']).index);
-		this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
-			onSuccess(typeof item != "undefined");
-		}, function(error, event) {
-			onError(error, event);
-		});
+		try{
+			this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
+				onSuccess(typeof item != "undefined");
+			}, function(error, event) {
+				onError(error, event);
+			});
+		} catch (error) {
+			onError(error);
+		}
 	},
 	/* DataBase::addMoodPlace(String name, Function onSuccess, Function onError)
 	 *
@@ -92,17 +95,38 @@ var DataBase = Class.extend({
 				return;
 			}
 			
-			self.open('moodPlaces').add({name: name});
+			try {
+				self.open('moodPlaces').add({name: name});
+			} catch (error) {
+				onError(error);
+			}
 			self.getMoodPlaceId(name, onSuccess, onError);
 		}, onError);
 	},
 	getMoodPlaceId: function(name, onSuccess, onError) {
-		this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
-			if (typeof item == "undefined") {
-				onError(new NotFoundException("MoodPlace with name " + name + " doesn't exist"));
-			} else {
-				onSuccess(item.placeId);
-			}
-		}, onError);
+		try {
+			this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
+				if (typeof item == "undefined") {
+					onError(new NotFoundException("MoodPlace with name " + name + " doesn't exist"));
+				} else {
+					onSuccess(item.placeId);
+				}
+			}, onError);
+		} catch (error) {
+			onError(error);
+		}
+	},
+	getMoodPlace: function(id, onSuccess, onError) {
+		try {
+			this.open('moodPlaces').get(id).then(function(item) {
+				if (typeof item != 'undefined') {
+					onSuccess(item.name);
+				} else {
+					onError(new NotFoundException("MoodPlace with id " + id + " doesn't exist"));
+				}
+			}, onError);
+		} catch (error) {
+			onError(error);
+		}
 	}
 });
