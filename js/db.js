@@ -1,51 +1,108 @@
 /*
- * This file contains a basic Database Abstraction layer.
- * It can be used as a workaround for the lack of proper support in mobile devices.
+ * This file contains the DataBase class.
  */
  
-var DB = {};
+Error.subClass("DataBaseException");
 
-DB.Common = Class.extend({
-	init: function(driver) {
-		this.driver = driver;
-	},
-	executeSql: function(query, onSuccess, onError) {
-		this.driver.executeSql(query, onSuccess, onError);
-	}
-});
-
-/****************************
- ****  DATABASE DRIVERS  ****
- ****************************/
-
-/**
- * DB.AbstractDriver is the base class for DB Drivers
- * The default behavior for every method is "throw a DB.NotImplementedException". 
- */
-DB.AbstractDriver = Class.extend({
-	init: function() {},
-	executeSql: function(query, onSuccess, onError) {
-		throw new Exception('AbstractDriver must be extended!');
-	}
-});
-
-/**
- * DB.WebSQLDriver can be used on platforms supporting HTML5's Web SQL
- */
-DB.WebSQLDriver = DB.AbstractDriver.extend({
-	init: function(dbName, version, description, size) {
-		//Database openDatabase(String dbName, String version, String description, int sizeInBytes)
-		this.db = openDatabase(dbName, version, description, size);
-	},
-	executeSQL: function(query, onSuccess, onError) {
-		this.db.transaction(function(tx) {
-			tx.executeSql(query);
+DataBaseException.subClass("NotFoundException");
+DataBaseException.subClass("AlreadyExistsException");
+ 
+var DataBase = Class.extend({
+	init: function(app, name) {
+		this.app = app;
+		this.dbname = name;
+		
+		var keys = this.keys = [];
+		keys['moodEntries'] = 'moodEntries';
+		keys['moodPlaces'] = 'moodPlaces';
+		keys['moodEntries_placeIdx'] = 'entryPlaceIdx';
+		keys['moodEntries_activityIdx'] = 'entryActivityIdx';
+		keys['moodPlaces_nameIdx'] = 'moodPlacesNameIdx';
+		
+		$.indexedDB(name, {
+			"version": 3,
+			"upgrade": function(tx) {
+				app.log('upgrading database');
+			},
+			"schema": {
+				"1": function(tx) {
+					var moodEntries = tx.createObjectStore(keys['moodEntries'], {
+						"autoIncrement": true,
+						"keyPath": "entryId"
+					});
+					moodEntries.createIndex("place", {
+						"unique": false,
+						"multiEntry": false
+					}, keys['moodEntries_placeIdx']);
+					moodEntries.createIndex("activity", {
+						"unique": false,
+						"multiEntry": false
+					}, keys['moodEntries_activityIdx']);
+					
+					var moodPlaces = tx.createObjectStore(keys['moodPlaces'], {
+						"autoIncrement": true,
+						"keyPath": "placeId"
+					});
+					moodPlaces.createIndex("name", {
+						"unique": true
+					}, keys['moodPlaces_nameIdx']);
+				}
+			}
+		}).done(function(db, event) {
+			app.log('database ' + name + ' opened');
+		}).fail(function(error, event) {
+			app.log('erorr when opening database ' + name, error, event);
+		}).progress(function(error, event) {
+			app.log('error when opening database ' + name, error, event);
 		});
+	},
+	
+	/* DataBase::open(String key)
+	 *
+	 *	Internal use only! Returns the objectStore for the given key.
+	 */
+	open: function(key) {
+		return $.indexedDB(this.dbname).objectStore(this.keys[key]);
+	},
+	
+	/* DataBase::hasMoodPlace(String name, Function onSuccess, Function onError)
+	 *
+	 *	On success: onSuccess(result) is called, with result true if the moodplace with the given name exists.
+	 *  On failure: onError(error) is called
+	 */
+	hasMoodPlace: function(name, onSuccess, onError) {
+		//console.log($.indexedDB(this.dbname).objectStore(this.keys['moodPlaces']).index);
+		this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
+			onSuccess(typeof item != "undefined");
+		}, function(error, event) {
+			onError(error, event);
+		});
+	},
+	/* DataBase::addMoodPlace(String name, Function onSuccess, Function onError)
+	 *
+	 *  On success: onSuccess(id) is called with the id of the new MoodPlace
+	 *  On error: onError(error) is called
+	 *  If the MoodPlace already exists, onErorr(AlreadyExistsException) is called
+	 */
+	addMoodPlace: function(name, onSuccess, onError) {
+		var self = this;
+		self.hasMoodPlace(name, function(found) {
+			if (found) {
+				onError(new AlreadyExistsException("MoodPlace " + name + " already exists"));
+				return;
+			}
+			
+			self.open('moodPlaces').add({name: name});
+			self.getMoodPlaceId(name, onSuccess, onError);
+		}, onError);
+	},
+	getMoodPlaceId: function(name, onSuccess, onError) {
+		this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
+			if (typeof item == "undefined") {
+				onError(new NotFoundException("MoodPlace with name " + name + " doesn't exist"));
+			} else {
+				onSuccess(item.placeId);
+			}
+		}, onError);
 	}
-});
-
-/**
- * DB.IndexedDBDriver can be used on platforms supporting HTML5's IndexedDB
- */
-DB.IndexedDBDriver = DB.AbstractDriver.extend({
 });

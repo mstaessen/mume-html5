@@ -2,7 +2,7 @@ var MoodSpaces = Class.extend({
 	init: function() {
 		this.log("MoodSpaces - Creating MoodSpaces instance");
 		
-		
+		this.database = new DataBase(this, 'MoodPlaces');
 
 		this.mainView = new MSMainView(this);
 		this.newMoodView = new MSNewMoodView(this);
