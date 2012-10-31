@@ -49,7 +49,9 @@
 	<script src="js/moodspaces.js"></script>
 	
 	<script>
+	// yes, $(document).ready, and not what jQuery Mobile tells us to use, as this installs our handlers, instead of actually running something
 	$(document).ready(function(){
+	    // remove the assignment, nothing exists in global namespace (apart from the classes) !!
 		window.__ = new MoodSpaces();
 	});
 	</script>
