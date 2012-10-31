@@ -14,10 +14,10 @@ var DataBase = Class.extend({
 		
 		var keys = this.keys = [];
 		keys['moodEntries'] = 'moodEntries';
-		keys['moodPlaces'] = 'moodPlaces';
-		keys['moodEntries_placeIdx'] = 'entryPlaceIdx';
+		keys['moodSpots'] = 'moodSpots';
+		keys['moodEntries_spotIdx'] = 'entrySpotIdx';
 		keys['moodEntries_activityIdx'] = 'entryActivityIdx';
-		keys['moodPlaces_nameIdx'] = 'moodPlacesNameIdx';
+		keys['moodSpots_nameIdx'] = 'moodSpotsNameIdx';
 		
 		$.indexedDB(name, {
 			"version": 1,
@@ -30,22 +30,22 @@ var DataBase = Class.extend({
 						"autoIncrement": true,
 						"keyPath": "entryId"
 					});
-					moodEntries.createIndex("place", {
+					moodEntries.createIndex("spot", {
 						"unique": false,
 						"multiEntry": false
-					}, keys['moodEntries_placeIdx']);
+					}, keys['moodEntries_spotIdx']);
 					moodEntries.createIndex("activity", {
 						"unique": false,
 						"multiEntry": false
 					}, keys['moodEntries_activityIdx']);
 					
-					var moodPlaces = tx.createObjectStore(keys['moodPlaces'], {
+					var moodSpots = tx.createObjectStore(keys['moodSpots'], {
 						"autoIncrement": true,
-						"keyPath": "placeId"
+						"keyPath": "spotId"
 					});
-					moodPlaces.createIndex("name", {
+					moodSpots.createIndex("name", {
 						"unique": true
-					}, keys['moodPlaces_nameIdx']);
+					}, keys['moodSpots_nameIdx']);
 				}
 			}
 		}).done(function(db, event) {
@@ -65,14 +65,14 @@ var DataBase = Class.extend({
 		return $.indexedDB(this.dbname).objectStore(this.keys[key]);
 	},
 	
-	/* DataBase::hasMoodPlace(String name, Function onSuccess, Function onError)
+	/* DataBase::hasMoodSpot(String name, Function onSuccess, Function onError)
 	 *
-	 *	On success: onSuccess(result) is called, with result true if the moodplace with the given name exists.
+	 *	On success: onSuccess(result) is called, with result true if the moodspot with the given name exists.
 	 *  On failure: onError(error) is called
 	 */
-	hasMoodPlace: function(name, onSuccess, onError) {
+	hasMoodSpot: function(name, onSuccess, onError) {
 		try{
-			this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
+			this.open('moodSpots').index(this.keys['moodSpots_nameIdx']).get(name).then(function(item) {
 				onSuccess(typeof item != "undefined");
 			}, function(error, event) {
 				onError(error, event);
@@ -81,39 +81,39 @@ var DataBase = Class.extend({
 			onError(error);
 		}
 	},
-	/* DataBase::addMoodPlace(String name, Function onSuccess, Function onError)
+	/* DataBase::addMoodSpot(String name, Function onSuccess, Function onError)
 	 *
-	 *  On success: onSuccess(id) is called with the id of the new MoodPlace
+	 *  On success: onSuccess(id) is called with the id of the new MoodSpot
 	 *  On error: onError(error) is called
-	 *  If the MoodPlace already exists, onErorr(AlreadyExistsException) is called
+	 *  If the MoodSpot already exists, onErorr(AlreadyExistsException) is called
 	 */
-	addMoodPlace: function(name, onSuccess, onError) {
+	addMoodSpot: function(name, onSuccess, onError) {
 		var self = this;
-		self.hasMoodPlace(name, function(found) {
+		self.hasMoodSpot(name, function(found) {
 			if (found) {
-				onError(new AlreadyExistsException("MoodPlace " + name + " already exists"));
+				onError(new AlreadyExistsException("MoodSpot " + name + " already exists"));
 				return;
 			}
 			
 			try {
-				self.open('moodPlaces').add({name: name});
+				self.open('moodSpots').add({name: name});
 			} catch (error) {
 				onError(error);
 			}
-			self.getMoodPlaceId(name, onSuccess, onError);
+			self.getMoodSpotId(name, onSuccess, onError);
 		}, onError);
 	},
-	/* DataBase::getMoodPlaceId(String name, Function onSuccess, Function onError)
+	/* DataBase::getMoodSpotId(String name, Function onSuccess, Function onError)
 	 *
-	 *  On success: onSuccess(id) is called with the Id of the moodplace
+	 *  On success: onSuccess(id) is called with the Id of the moodspot
 	 *  If not found: onError(NotFoundException)
 	 *  On error: onError(Error)
 	 */
-	getMoodPlaceId: function(name, onSuccess, onError) {
+	getMoodSpotId: function(name, onSuccess, onError) {
 		try {
-			this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).getKey(name).then(function(key) {
+			this.open('moodSpots').index(this.keys['moodSpots_nameIdx']).getKey(name).then(function(key) {
 				if (typeof key == "undefined") {
-					onError(new NotFoundException("MoodPlace with name " + name + " doesn't exist"));
+					onError(new NotFoundException("MoodSpot with name " + name + " doesn't exist"));
 				} else {
 					onSuccess(key);
 				}
@@ -122,19 +122,19 @@ var DataBase = Class.extend({
 			onError(error);
 		}
 	},
-	/* DataBase::getMoodPlace(Integer id, Function onSuccess, Function onError)
+	/* DataBase::getMoodSpot(Integer id, Function onSuccess, Function onError)
 	 *
-	 *  On success: onSuccess(name) is called with the name of the moodplace
+	 *  On success: onSuccess(name) is called with the name of the moodspot
 	 *  If not found: onError(NotFoundException)
 	 *  On error: onError(Error)
 	 */
-	getMoodPlace: function(id, onSuccess, onError) {
+	getMoodSpot: function(id, onSuccess, onError) {
 		try {
-			this.open('moodPlaces').get(id).then(function(item) {
+			this.open('moodSpots').get(id).then(function(item) {
 				if (typeof item != 'undefined') {
 					onSuccess(item.name);
 				} else {
-					onError(new NotFoundException("MoodPlace with id " + id + " doesn't exist"));
+					onError(new NotFoundException("MoodSpot with id " + id + " doesn't exist"));
 				}
 			}, onError);
 		} catch (error) {
@@ -144,7 +144,7 @@ var DataBase = Class.extend({
 
 	/* The MoodEntry object:
 	 *	(var)		timestamp:	a timestamp
-	 *	(String)	place:		the name of location (or the id?)
+	 *	(String)	spot:		the name of location (or the id?)
 	 *	(Array<String>)	people: 	the people (their names)
 	 *	(MoodSelection) selection:	the selection on the wheel
 	 */
