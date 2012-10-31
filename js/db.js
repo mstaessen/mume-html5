@@ -20,7 +20,7 @@ var DataBase = Class.extend({
 		keys['moodPlaces_nameIdx'] = 'moodPlacesNameIdx';
 		
 		$.indexedDB(name, {
-			"version": 3,
+			"version": 1,
 			"upgrade": function(tx) {
 				app.log('upgrading database');
 			},
@@ -103,19 +103,31 @@ var DataBase = Class.extend({
 			self.getMoodPlaceId(name, onSuccess, onError);
 		}, onError);
 	},
+	/* DataBase::getMoodPlaceId(String name, Function onSuccess, Function onError)
+	 *
+	 *  On success: onSuccess(id) is called with the Id of the moodplace
+	 *  If not found: onError(NotFoundException)
+	 *  On error: onError(Error)
+	 */
 	getMoodPlaceId: function(name, onSuccess, onError) {
 		try {
-			this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).get(name).then(function(item) {
-				if (typeof item == "undefined") {
+			this.open('moodPlaces').index(this.keys['moodPlaces_nameIdx']).getKey(name).then(function(key) {
+				if (typeof key == "undefined") {
 					onError(new NotFoundException("MoodPlace with name " + name + " doesn't exist"));
 				} else {
-					onSuccess(item.placeId);
+					onSuccess(key);
 				}
 			}, onError);
 		} catch (error) {
 			onError(error);
 		}
 	},
+	/* DataBase::getMoodPlace(Integer id, Function onSuccess, Function onError)
+	 *
+	 *  On success: onSuccess(name) is called with the name of the moodplace
+	 *  If not found: onError(NotFoundException)
+	 *  On error: onError(Error)
+	 */
 	getMoodPlace: function(id, onSuccess, onError) {
 		try {
 			this.open('moodPlaces').get(id).then(function(item) {
@@ -125,6 +137,31 @@ var DataBase = Class.extend({
 					onError(new NotFoundException("MoodPlace with id " + id + " doesn't exist"));
 				}
 			}, onError);
+		} catch (error) {
+			onError(error);
+		}
+	},
+
+	/* The MoodEntry object:
+	 *	(var)		timestamp:	a timestamp
+	 *	(String)	place:		the name of location (or the id?)
+	 *	(Array<String>)	people: 	the people (their names)
+	 *	(MoodSelection) selection:	the selection on the wheel
+	 */
+
+	/* The MoodSelection object:
+	 * 	(float)		r:		the radius (normalized!)
+	 *	(float)		phi:		the angle, in radians
+	 */
+
+	/* DataBase::addMoodEntry(MoodEntry entry, Function onSuccessm, Function onError)
+	 *
+	 * On success: onSuccess() is called
+	 * On error: onError(error) is called
+	 */
+	addMoodEntry: function(entry, onSuccess, onError) {
+		try {
+			this.open('moodEntries').add(entry).then(onSuccess, onError);
 		} catch (error) {
 			onError(error);
 		}
