@@ -1,6 +1,6 @@
 Error.extend = Class.extend;
 
-function __createSubClassMethod(parent) {
+Error.__createSubClassMethod = function(parent) {
 	return function(name) {
 		window[name] = parent.extend({
 			init: function(msg) {
@@ -12,10 +12,10 @@ function __createSubClassMethod(parent) {
 		window[name].name = name;
 		window[name].prototype.name = name;
 		window[name].prototype.constructor.name = name;
-		window[name].subClass = __createSubClassMethod(window[name]);
+		window[name].subClass = Error.__createSubClassMethod(window[name]);
 	}
 }
 
-Error.subClass = __createSubClassMethod(Error);
+Error.subClass = Error.__createSubClassMethod(Error);
 
 Error.subClass("IllegalArgumentException");
