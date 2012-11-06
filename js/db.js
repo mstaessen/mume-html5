@@ -17,10 +17,11 @@ var DataBase = Class.extend({
 		keys['moodSpots'] = 'moodSpots';
 		keys['moodEntries_spotIdx'] = 'entrySpotIdx';
 		keys['moodEntries_activityIdx'] = 'entryActivityIdx';
+		keys['moodEntries_timestampIdx'] = 'entryTimeStampIdx';
 		keys['moodSpots_nameIdx'] = 'moodSpotsNameIdx';
 		
 		$.indexedDB(name, {
-			"version": 1,
+			"version": 2,
 			"upgrade": function(tx) {
 				app.log('upgrading database');
 			},
@@ -46,6 +47,12 @@ var DataBase = Class.extend({
 					moodSpots.createIndex("name", {
 						"unique": true
 					}, keys['moodSpots_nameIdx']);
+				},
+				"2": function(tx) {
+					var moodEntries = tx.objectStore(keys['moodEntries']);
+					moodEntries.createIndex("timestamp", {
+						"unique": true
+					}, keys['moodEntries_timestampIdx']);
 				}
 			}
 		}).done(function(db, event) {
@@ -166,4 +173,5 @@ var DataBase = Class.extend({
 			onError(error);
 		}
 	}
+	// which getters? (allow to iterate, allow to get all entries of a day ...
 });
