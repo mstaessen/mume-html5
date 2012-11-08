@@ -84,24 +84,28 @@
         <form name="mood" action="" method="post">
             <input type="hidden" name="r" />
             <input type="hidden" name="phi" />
-            <div class="ui-grid-a">
+            <div class="ui-grid-solo">
                 <div class="ui-block-a">
-                    <select name="location">
-                    <option value="" disabled="disabled">Location</option></select>
-                </div><div class="ui-block-b">
-                    <a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
+                    <select id="newmood-location" name="location">
+                    	<option value="" disabled="disabled">Location</option>
+					</select>
                 </div>
             </div>
-            <div class="ui-grid-a">
+            <div class="ui-grid-solo">
                 <div class="ui-block-a">
-                    <select name="activity" placeholder="location">
+                    <select id="newmood-activity" name="activity">
                         <option value="" disabled="disabled">Activity</option>
                     </select>
-                </div><div class="ui-block-b">
-                    <a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
                 </div>
             </div>
-            <input type="submit" name="submit" value="Add Entry" data-theme="b">
+			<div class="ui-grid-a">
+				<div class="ui-block-a">
+					<button id="newmood-cancel" type="button" data-theme="c">Cancel</button>
+				</div>
+				<div class="ui-block-b">
+					<button id="newmood-submit" type="button" data-theme="b">Add entry</button>
+				</div>
+			</div>
         </form>
     </div>
 </div>

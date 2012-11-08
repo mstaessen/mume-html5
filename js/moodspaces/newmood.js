@@ -41,14 +41,17 @@ var MSNewMoodView = MSView.extend({
             color: '#7BBD0D'
         }];
     },
+    
     load: function() {
         this.app.log('MSNewMoodView::load');
         this._super();
+        
         var wheel = this.wheel;
         var radius = Math.min(wheel.parent().width(), wheel.parent().height()) / 2;
         wheel.css('width', (2 * radius) + 'px');
         wheel.css('height', (2 * radius) + 'px');
     
+        // create the wheel if it hasn't been created yet
         if(wheel.children().length == 0) {
             var moods = this.moods;
             for(var j = 0; j < moods.length; j++) {
@@ -82,6 +85,7 @@ var MSNewMoodView = MSView.extend({
             }
         }
     
+        // create the pin
         this.pin = new SVG.Circle({
             'cx': 0,
             'cy': 0,
@@ -149,6 +153,32 @@ var MSNewMoodView = MSView.extend({
             _this.app.log('stop dragging');
             event.stopPropagation();
         });
+        
+        // install the locations to the <select> for locations
+        var locationSelect = $('#newmood-location');
+        this.app.database.iterateMoodSpots(
+            function(spot) {
+                locationSelect.append('<option value="' + spot.spotId + '">' + spot.name + '</option>');
+            }
+        , function() {}, this.app.log);
+        locationSelect.selectmenu('refresh', true);
+        
+        // install the locations to the <select> for activity
+        var activitySelect = $('#newmood-activity');
+        this.app.database.iterateMoodActivities(
+            function(activity) {
+                activitySelect.append('<option value="' + activity.activityId + '">' + activity.name + '</option>');
+            }
+        , function() {}, this.app.log);
+        activitySelect.selectmenu('refresh', true);
+        
+        // install the listeners to cancel and submit
+        $('#newmood-cancel').click(function() {
+            _this.cancel();
+        });
+        $('#newmood-submit').click(function() {
+            _this.submit();
+        });
     },
     unload: function() {
         this.app.log('MSNewMoodView::unload');
@@ -160,7 +190,65 @@ var MSNewMoodView = MSView.extend({
             this.pin = null;
         }
     
-        // remove all listeners
+        // remove all listeners from the wheel
         this.wheel.off();
+        
+        /*
+         * The following actions are taken here, because if they were done in the following load,
+         * the user will see a flash with his/her previous selection, which we don't want of course.
+         */
+        
+        // clear the location select and re-init with placeholder
+        var locationSelect = $('#newmood-location');
+        locationSelect.empty();
+        locationSelect.append('<option value="" disabled="disabled" selected="selected">Location</option>');
+        locationSelect.selectmenu('refresh', true);
+        
+        // clear the activity select and re-init with placeholder
+        var activitySelect = $('#newmood-activity');
+        activitySelect.empty();
+        activitySelect.append('<option value="" disabled="disabled" selected="selected">Activity</option>');
+        activitySelect.selectmenu('refresh', true);
+        
+        // reset the selected location
+        this.selectedMood.r = this.selectedMood.phi = 0;
+        
+        // remove the listeners on cancel and submit
+        $('#newmood-cancel').off();
+        $('#newmood-submit').off();
+    },
+    
+    cancel: function() {
+        this.app.changePage('home');
+    },
+    submit: function() {
+        var selectedMood = this.selectedMood;
+        var selectedActivity = $('#newmood-activity')[0].value;
+        var selectedLocation = $('#newmood-location')[0].value;
+        
+        // TODO people!!!
+        
+        var self = this;
+        
+        this.app.database.addMoodEntry(
+            // the object to add
+            {
+                timestamp: +new Date, // Date.now is not implemented on some browsers...
+                spot: selectedLocation,
+                activity: selectedActivity,
+                selections: [selectedMood],
+                people: []
+            },
+            // onSuccess
+            function() {
+                self.app.changePage('home');
+            },
+            // onError
+            this.error
+        );
+    },
+    error: function(error) {
+        // TODO general error function
+        console.error(error);
     }
 });

@@ -53,8 +53,26 @@ var MoodSpaces = Class.extend({
             this.settingsView.load();
         }
     },
+    changePage: function(to, transition, reverse) {
+        $.mobile.changePage(
+            // to
+            $('#' + to),
+            // params
+            {
+                reverse: !!reverse,
+                transition: (typeof transition == 'undefined') ? $.mobile.defaultPageTransition : transition
+            }
+        );
+    },
     log: function(txt) {
         // comment out to disable logging
         console.log(txt);
+    },
+    error: function(error) {
+        if (error instanceof Error) {
+            console.error(error.stack);
+        } else {
+            console.error(error);
+        }
     }
 });
