@@ -2,153 +2,153 @@
 <html>
 <html lang="en" manifest="app.manifest">
 <head>
-	<title>MoodSpaces</title> 
-	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-	
-	<!-- Apple stuff -->
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<link rel="apple-touch-icon" href="img/moodspaces.png"/>
-	<link rel="apple-touch-icon" sizes="72x72" href="img/moodspaces-ipad.png" />
-	<link rel="apple-touch-icon" sizes="114x114" href="img/moodspaces-iphone4.png" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black">
-	
-	<!-- allow inheritance -->
-	<script src="js/inheritance.js"></script>
-	
-	<!-- Custom errors -->
-	<script src="js/error.js"></script>
+    <title>MoodSpaces</title> 
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    
+    <!-- Apple stuff -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon" href="img/moodspaces.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="img/moodspaces-ipad.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="img/moodspaces-iphone4.png" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <!-- allow inheritance -->
+    <script src="js/inheritance.js"></script>
+    
+    <!-- Custom errors -->
+    <script src="js/error.js"></script>
 
-	<!-- jQuery (http://jquery.com) -->	
-	<script src="js/jquery-1.8.2.min.js"></script>
-	
-	<!-- jQuery Mobile (http://jquerymobile.com/) -->
-	<script src="js/jquery.mobile-1.2.0.min.js"></script>
-	<link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
-	
-	<!-- IndexedDB emulator using WebSQL -->
-	<script src="js/IndexedDBShim.min.js"></script>
-	
-	<!-- jQuery IndexedDB plugin -->
-	<script src="js/jquery.indexeddb.js"></script>
-	
-	<!-- SVG JavaScript -->
-	<script src="js/svg.js"></script>
+    <!-- jQuery (http://jquery.com) --> 
+    <script src="js/jquery-1.8.2.min.js"></script>
+    
+    <!-- jQuery Mobile (http://jquerymobile.com/) -->
+    <script src="js/jquery.mobile-1.2.0.min.js"></script>
+    <link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
+    
+    <!-- IndexedDB emulator using WebSQL -->
+    <script src="js/IndexedDBShim.min.js"></script>
+    
+    <!-- jQuery IndexedDB plugin -->
+    <script src="js/jquery.indexeddb.js"></script>
+    
+    <!-- SVG JavaScript -->
+    <script src="js/svg.js"></script>
 
-	<!-- DB JavaScript -->
-	<script src="js/db.js"></script>
-	
-	<!-- MoodSpaces scripts -->
-	<script src="js/moodspaces/common.js"></script>
-	<script src="js/moodspaces/main.js"></script>
-	<script src="js/moodspaces/newmood.js"></script>
-	<script src="js/moodspaces/moodspots.js"></script>
-	<script src="js/moodspaces/moodtimes.js"></script>
-	<script src="js/moodspaces/moodpeeps.js"></script>
-	<script src="js/moodspaces/moodtasks.js"></script>
-	<script src="js/moodspaces/settingsview.js"></script>
-	<script src="js/moodspaces.js"></script>
-	
-	<script>
-	// yes, $(document).ready, and not what jQuery Mobile tells us to use, as this installs our handlers, instead of actually running something
-	$(document).ready(function(){
-	    // remove the assignment, nothing exists in global namespace (apart from the classes) !!
-		window.__ = new MoodSpaces();
-	});
-	</script>
+    <!-- DB JavaScript -->
+    <script src="js/db.js"></script>
+    
+    <!-- MoodSpaces scripts -->
+    <script src="js/moodspaces/common.js"></script>
+    <script src="js/moodspaces/main.js"></script>
+    <script src="js/moodspaces/newmood.js"></script>
+    <script src="js/moodspaces/moodspots.js"></script>
+    <script src="js/moodspaces/moodtimes.js"></script>
+    <script src="js/moodspaces/moodpeeps.js"></script>
+    <script src="js/moodspaces/moodtasks.js"></script>
+    <script src="js/moodspaces/settingsview.js"></script>
+    <script src="js/moodspaces.js"></script>
+    
+    <script>
+    // yes, $(document).ready, and not what jQuery Mobile tells us to use, as this installs our handlers, instead of actually running something
+    $(document).ready(function(){
+        // remove the assignment, nothing exists in global namespace (apart from the classes) !!
+        window.__ = new MoodSpaces();
+    });
+    </script>
 </head> 
 <body> 
 <div data-role="page" id="home">
-	<div data-role="header">
-		<h1>MoodSpaces</h1>
-		<a href="#settings" data-icon="gear" class="ui-btn-right">Settings</a>
-	</div>
-	<div data-role="content">
-		<a href="#new" data-role="button" data-icon="plus" data-theme="b">Enter new mood</a>
-	
-		<h4>Stats</h4>
-		
-		<a href="#moodspots" data-role="button">MoodSpots</a>
-		<a href="#moodpeeps" data-role="button">MoodPeeps</a>
-		<a href="#moodtimes" data-role="button">MoodTimes</a>
-		<a href="#moodtasks" data-role="button" class="ui-disabled">MoodTasks</a>
-	</div>
+    <div data-role="header">
+        <h1>MoodSpaces</h1>
+        <a href="#settings" data-icon="gear" class="ui-btn-right">Settings</a>
+    </div>
+    <div data-role="content">
+        <a href="#new" data-role="button" data-icon="plus" data-theme="b">Enter new mood</a>
+    
+        <h4>Stats</h4>
+        
+        <a href="#moodspots" data-role="button">MoodSpots</a>
+        <a href="#moodpeeps" data-role="button">MoodPeeps</a>
+        <a href="#moodtimes" data-role="button">MoodTimes</a>
+        <a href="#moodtasks" data-role="button" class="ui-disabled">MoodTasks</a>
+    </div>
 </div>
 
 <div data-role="page" id="new" data-add-back-btn="true">
-	<div data-role="header">
-		<h1>Enter new mood</h1>
-	</div>
-	<div data-role="content">
-		<svg id="plutchik" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-100 -100 200 200">
-		</svg>
-		<form name="mood" action="" method="post">
-			<input type="hidden" name="r" />
-			<input type="hidden" name="phi" />
-			<div class="ui-grid-a">
-				<div class="ui-block-a">
-					<select name="location">
-					<option value="" disabled="disabled">Location</option></select>
-				</div><div class="ui-block-b">
-					<a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
-				</div>
-			</div>
-			<div class="ui-grid-a">
-				<div class="ui-block-a">
-					<select name="activity" placeholder="location">
-					    <option value="" disabled="disabled">Activity</option>
-					</select>
-				</div><div class="ui-block-b">
-					<a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
-				</div>
-			</div>
-			<input type="submit" name="submit" value="Add Entry" data-theme="b">
-		</form>
-	</div>
+    <div data-role="header">
+        <h1>Enter new mood</h1>
+    </div>
+    <div data-role="content">
+        <svg id="plutchik" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-100 -100 200 200">
+        </svg>
+        <form name="mood" action="" method="post">
+            <input type="hidden" name="r" />
+            <input type="hidden" name="phi" />
+            <div class="ui-grid-a">
+                <div class="ui-block-a">
+                    <select name="location">
+                    <option value="" disabled="disabled">Location</option></select>
+                </div><div class="ui-block-b">
+                    <a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
+                </div>
+            </div>
+            <div class="ui-grid-a">
+                <div class="ui-block-a">
+                    <select name="activity" placeholder="location">
+                        <option value="" disabled="disabled">Activity</option>
+                    </select>
+                </div><div class="ui-block-b">
+                    <a href="#" data-role="button" data-icon="plus" data-theme="b" data-iconpos="right">New</a>
+                </div>
+            </div>
+            <input type="submit" name="submit" value="Add Entry" data-theme="b">
+        </form>
+    </div>
 </div>
 
 <div data-role="page" id="moodspots" data-add-back-btn="true">
-	<div data-role="header">
-		<h1>MoodSpots</h1>
-	</div>
-	<div data-role="content">	
-		<p>TODO: mood spots</p>		
-	</div>
+    <div data-role="header">
+        <h1>MoodSpots</h1>
+    </div>
+    <div data-role="content">   
+        <p>TODO: mood spots</p>     
+    </div>
 </div>
 
 <div data-role="page" id="moodtimes" data-add-back-btn="true">
-	<div data-role="header">
-		<h1>MoodTimes</h1>
-	</div>
-	<div data-role="content">	
-		<p>Hello world</p>		
-	</div>
+    <div data-role="header">
+        <h1>MoodTimes</h1>
+    </div>
+    <div data-role="content">   
+        <p>Hello world</p>      
+    </div>
 </div>
 
 <div data-role="page" id="moodpeeps" data-add-back-btn="true">
-	<div data-role="header">
-		<h1>MoodPeeps</h1>
-	</div>
-	<div data-role="content">	
-		<p>Hello world</p>		
-	</div>
+    <div data-role="header">
+        <h1>MoodPeeps</h1>
+    </div>
+    <div data-role="content">   
+        <p>Hello world</p>      
+    </div>
 </div>
 
 <div data-role="page" id="moodtasks" data-add-back-btn="true">
-	<div data-role="header">
-		<h1>MoodTasks</h1>
-	</div>
-	<div data-role="content">
-		
-	</div>
+    <div data-role="header">
+        <h1>MoodTasks</h1>
+    </div>
+    <div data-role="content">
+        
+    </div>
 </div>
 
 <div data-role="page" id="settings" data-add-back-btn="true">
-	<div data-role="header">
-		<h1>Settings</h1>
-	</div>
-	<div data-role="content">	
-		<p>Settings panel</p>		
-	</div>
+    <div data-role="header">
+        <h1>Settings</h1>
+    </div>
+    <div data-role="content">   
+        <p>Settings panel</p>       
+    </div>
 </div>
 </body>
 </html>
