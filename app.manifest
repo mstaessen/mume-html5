@@ -28,6 +28,8 @@ js/moodspaces/moodtimes.js
 js/moodspaces/moodspots.js
 js/moodspaces/moodtasks.js
 js/moodspaces/main.js
+js/error.js
+js/IndexedDBShim.min.js
 
 NETWORK:
 http://maps.gstatic.com/
