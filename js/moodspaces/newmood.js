@@ -231,6 +231,20 @@ var MSNewMoodView = MSView.extend({
         var selectedActivity = $('#newmood-activity')[0].value;
         var selectedLocation = $('#newmood-location')[0].value;
         
+        // validate input
+        if (selectedMood.r == 0) {
+            this.error("Please enter a mood");
+            return false;
+        }
+        if (selectedActivity == "") {
+            this.error("Please enter an activity");
+            return false;
+        }
+        if (selectedLocation == "") {
+            this.error("Please enter a location");
+            return false;
+        }
+        
         // TODO people!!!
         
         var self = this;
@@ -239,8 +253,8 @@ var MSNewMoodView = MSView.extend({
             // the object to add
             {
                 timestamp: +new Date, // Date.now is not implemented on some browsers...
-                spot: selectedLocation,
-                activity: selectedActivity,
+                spot: +selectedLocation,
+                activity: +selectedActivity,
                 selections: [selectedMood],
                 people: []
             },
@@ -251,8 +265,16 @@ var MSNewMoodView = MSView.extend({
             // onError
             this.error
         );
+        
+        return true;
     },
     error: function(error) {
+        var errorPopup = $('#new > div > .errorpopup');
+        var errorContent = $('#new > div > .errorpopup > .errorcontent');
+        
+        errorContent.html((error instanceof Error) ? error.stack : error);
+        errorPopup.popup('open');
+        
         // TODO general error function
         console.error(error);
     }
