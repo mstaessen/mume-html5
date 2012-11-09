@@ -102,9 +102,36 @@ var MSNewMoodView = MSView.extend({
         var _this = this;
     
         var dragging = false;
+        
+        var setPinLocation = function(x, y) {
+            var offset = wheel.offset();
+            
+            x -= Math.round(offset.left);
+            y -= Math.round(offset.top);
+            
+            x -= radius;
+            y -= radius;
+            
+            var r = Math.sqrt(x * x + y * y) / radius,
+                phi = Math.atan2(-y, x);
+            
+            if (r > 1) {
+                return false;
+            }
+            
+            _this.selectedMood.r = r;
+            _this.selectedMood.phi = phi;
+            
+            _this.pin[0].setAttributeNS(null, 'cx', (100 * x / radius));
+            _this.pin[0].setAttributeNS(null, 'cy', (100 * y / radius));
+            
+            return true;
+        }
+        
         wheel.on("vmousedown", function (event){
             if (event.target.tagName != "circle") {
-                return;
+                if (!setPinLocation(event.pageX, event.pageY))
+                    return;
             }
         
             dragging = true;
@@ -117,31 +144,9 @@ var MSNewMoodView = MSView.extend({
                 return;
             }
         
-            var offset = wheel.offset();
-            var x = event.pageX - Math.round(offset.left),
-                y = event.pageY - Math.round(offset.top);
-            _this.app.log('dragging @ ' + x  + 'x' + y);
-        
-            x -= radius;
-            y -= radius;
-            
-            var r = Math.sqrt(x * x + y * y) / radius,
-                phi = Math.atan2(-y, x);
-            _this.app.log('polar coordinates: r=' + r + ' phi=' + phi);
-        
-            if (r > 1) {
-                _this.app.log('outside of circle, ignoring event');
-                event.stopPropagation();
-                return;
-            }
-        
-            _this.selectedMood.r = r;
-            _this.selectedMood.phi = phi;
-        
-            _this.pin[0].setAttributeNS(null, 'cx', (100 * x / radius));
-            _this.pin[0].setAttributeNS(null, 'cy', (100 * y / radius));
-        
             event.stopPropagation();
+            
+            setPinLocation(event.pageX, event.pageY);
         });
     
         wheel.on("vmouseup", function (event){
