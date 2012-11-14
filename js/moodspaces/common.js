@@ -20,5 +20,19 @@ var MSView = Class.extend({
     unload: function() {
         this.app.log('MSView::unload');
         // NOP
+    },
+    error: function(error) {
+        var errorPopup = $('#error > .errorpopup');
+        var errorContent = $('#error > .errorpopup > .errorcontent');
+        
+        errorContent.html((error instanceof Error) ? error.stack : error);
+        errorPopup.popup('open');
+        
+        // TODO general error function
+        if (error instanceof Error) {
+            console.error(error.stack);
+        } else {
+            console.error(error);
+        }
     }
 });

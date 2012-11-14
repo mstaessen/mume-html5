@@ -273,15 +273,5 @@ var MSNewMoodView = MSView.extend({
         );
         
         return true;
-    },
-    error: function(error) {
-        var errorPopup = $('#new > div > .errorpopup');
-        var errorContent = $('#new > div > .errorpopup > .errorcontent');
-        
-        errorContent.html((error instanceof Error) ? error.stack : error);
-        errorPopup.popup('open');
-        
-        // TODO general error function
-        console.error(error);
     }
 });
