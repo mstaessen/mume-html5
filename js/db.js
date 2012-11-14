@@ -25,7 +25,7 @@ var DataBase = Class.extend({
         $.indexedDB(name, {
             "version": 3,
             "upgrade": function(tx) {
-                app.log('upgrading database');
+                app.log('database upgraded');
             },
             "schema": {
                 "1": function(tx) {
@@ -76,8 +76,6 @@ var DataBase = Class.extend({
             app.log('database ' + name + ' opened');
         }).fail(function(error, event) {
             app.log('erorr when opening database ' + name, error, event);
-        }).progress(function(error, event) {
-            app.log('still opening database ' + name, error, event);
         });
     },
     
@@ -115,7 +113,7 @@ var DataBase = Class.extend({
      *  Function map: if not set, this function is set to DataBase::identity
      */
     _iterate: function(store, iter, onSuccess, onError, map) {
-        if (typeof map == 'undefined') {
+        if (!map) {
             map = this.identity;
         }
         
@@ -215,7 +213,7 @@ var DataBase = Class.extend({
     getMoodSpotId: function(name, onSuccess, onError) {
         try {
             this._index('moodSpots', 'nameIdx').getKey(name).then(function(key) {
-                if (typeof key == "undefined") {
+                if (typeof key === "undefined") {
                     onError(new NotFoundException("MoodSpot with name " + name + " doesn't exist"));
                 } else {
                     onSuccess(key);
@@ -234,7 +232,7 @@ var DataBase = Class.extend({
     getMoodSpot: function(id, onSuccess, onError) {
         try {
             this._open('moodSpots').get(id).then(function(item) {
-                if (typeof item != 'undefined') {
+                if (typeof item !== 'undefined') {
                     onSuccess(item.name);
                 } else {
                     onError(new NotFoundException("MoodSpot with id " + id + " doesn't exist"));
@@ -346,7 +344,7 @@ var DataBase = Class.extend({
     getMoodActivityId: function(name, onSuccess, onError) {
         try {
             this._index('moodActivities', 'nameIdx').getKey(name).then(function(key) {
-                if (typeof key == "undefined") {
+                if (typeof key === "undefined") {
                     onError(new NotFoundException("MoodActivity with name " + name + " doesn't exist"));
                 } else {
                     onSuccess(key);
@@ -365,7 +363,7 @@ var DataBase = Class.extend({
     getMoodActivity: function(id, onSuccess, onError) {
         try {
             this._open('moodActivities').get(id).then(function(item) {
-                if (typeof item != 'undefined') {
+                if (typeof item !== 'undefined') {
                     onSuccess(item.name);
                 } else {
                     onError(new NotFoundException("MoodActivity with id " + id + " doesn't exist"));
@@ -445,6 +443,31 @@ var DataBase = Class.extend({
         } catch (error) {
             onError(error);
         }
-    }
+    },
     // which getters? (allow to iterate, allow to get all entries of a day ...
+    
+    /* DataBase::delete(Function onSuccess, Function onError[, String name])
+     *
+     *  Deletes the database called name (defaults to this.dbname)!!! Use with caution.
+     */
+    delete: function(onSuccess, onError, name) {
+        try {
+            if (!name) {
+                name = this.dbname;
+            }
+            
+            var self = this;
+            self.app.log("Clearing database " + name);
+            $.indexedDB(name).deleteDatabase().then(
+                // onSuccess
+                function() {
+                    self.app.log("Database cleared");
+                    onSuccess();
+                },
+                onError
+            );
+        } catch (error) {
+            onError(error);
+        }
+    }
 });

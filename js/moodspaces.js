@@ -2,7 +2,20 @@ var MoodSpaces = Class.extend({
     init: function() {
         this.log("MoodSpaces - Creating MoodSpaces instance");
         
-        this.database = new DataBase(this, 'MoodPlaces');
+        var self = this;
+        
+        this.database = new DataBase(this, 'MoodSpaces');
+        // TODO this clears the old database, remove this when no longer needed
+        this.database.delete(
+            // onSuccess
+            function() {
+                self.log("Database MoodPlaces deleted");
+            },
+            // onError
+            self.error,
+            // name
+            'MoodPlaces'
+        );
 
         this.mainView = new MSMainView(this);
         this.newMoodView = new MSNewMoodView(this);
@@ -14,31 +27,29 @@ var MoodSpaces = Class.extend({
         
         this.currentView = this.mainView;
         
-        var _this = this;
-        
         $('#home').live('pageshow', function(event) {
-            _this.mainView.load();
+            self.mainView.load();
         });
         $('#new').live('pageshow', function(event) {
-            _this.newMoodView.load();
+            self.newMoodView.load();
         });
         $('#moodpeeps').live('pageshow', function(event) {
-            _this.moodPeepsView.load();
+            self.moodPeepsView.load();
         });
         $('#moodtimes').live('pageshow', function(event) {
-            _this.moodTimesView.load();
+            self.moodTimesView.load();
         });
         $('#moodspots').live('pageshow', function(event) {
-            _this.moodSpotsView.load();
+            self.moodSpotsView.load();
         });
         $('#moodtasks').live('pageshow', function(event) {
-            _this.moodTasksView.load();
+            self.moodTasksView.load();
         });
         $('#settings').live('pageshow', function(event) {
-            _this.settingsView.load();
+            self.settingsView.load();
         });
         
-        var hash = document.location.hash;
+        var hash = this.__hash = document.location.hash;
         if (hash == '#new') {
             this.newMoodView.load();
         } else if (hash == '#moodpeeps') {
@@ -74,5 +85,17 @@ var MoodSpaces = Class.extend({
         } else {
             console.error(error);
         }
+    },
+    
+    shouldReload: function() {
+        return !!this.__reload;
+    },
+    forceReload: function() {
+        this.log("Forcing reload on next page load...");
+        this.__reload = true;
+    },
+    
+    getOpenedHash: function() {
+        return this.__hash;
     }
 });
