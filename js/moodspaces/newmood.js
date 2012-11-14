@@ -145,6 +145,7 @@ var MSNewMoodView = MSView.extend({
             }
         
             event.stopPropagation();
+            event.preventDefault();
             
             setPinLocation(event.pageX, event.pageY);
         });
@@ -221,6 +222,11 @@ var MSNewMoodView = MSView.extend({
         // remove the listeners on cancel and submit
         $('#newmood-cancel').off();
         $('#newmood-submit').off();
+        
+        // if #new was opened, force reload
+        if (this.app.getOpenedHash() == "#new") {
+            this.app.forceReload();
+        }
     },
     
     cancel: function() {
