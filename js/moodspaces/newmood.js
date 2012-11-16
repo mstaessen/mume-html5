@@ -9,7 +9,7 @@ Number.prototype.cos = function(angle) {
 var MSNewMoodView = MSView.extend({
     init: function(app) {
         app.log('MSNewMoodView::init');
-        this._super(app);
+        this._super(app, 'new');
         
         this.selectedMood = { r: 0, phi: 0};
     

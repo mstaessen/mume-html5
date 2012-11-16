@@ -74,6 +74,11 @@
         <a href="#moodtimes" data-role="button">MoodTimes</a>
         <a href="#moodtasks" data-role="button" class="ui-disabled">MoodTasks</a>
     </div>
+	
+	<div id="-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
 </div>
 
 <div data-role="page" id="new" data-add-back-btn="true">
@@ -112,6 +117,11 @@
 			</div>
         </form>
     </div>
+	
+	<div id="new-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
 </div>
 
 <div data-role="page" id="moodspots" data-add-back-btn="true">
@@ -121,6 +131,11 @@
     <div data-role="content">   
         <p>TODO: mood spots</p>     
     </div>
+	
+	<div id="moodspots-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
 </div>
 
 <div data-role="page" id="moodtimes" data-add-back-btn="true">
@@ -130,6 +145,11 @@
     <div data-role="content">   
         <p>Hello world</p>      
     </div>
+	
+	<div id="moodtimes-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
 </div>
 
 <div data-role="page" id="moodpeeps" data-add-back-btn="true">
@@ -139,6 +159,11 @@
     <div data-role="content">   
         <p>Hello world</p>      
     </div>
+	
+	<div id="moodpeeps-error" class="errorpopup ui-content" data-role="popup">
+	<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+	<div class="errorcontent"></div>
+</div>
 </div>
 
 <div data-role="page" id="moodtasks" data-add-back-btn="true">
@@ -148,6 +173,11 @@
     <div data-role="content">
         
     </div>
+	
+	<div id="moodtasks-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
 </div>
 
 <div data-role="page" id="settings" data-add-back-btn="true">
@@ -164,11 +194,11 @@
 			<button type="button" data-footer="settings" data-target="places">Places</button>
 		</div>
 	</div>
-</div>
-
-<div id="error" class="errorpopup ui-content" data-role="popup">
-	<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-	<div class="errorcontent"></div>
+	
+	<div id="settings-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
 </div>
 </body>
 </html>

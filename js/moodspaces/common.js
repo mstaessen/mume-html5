@@ -1,6 +1,7 @@
 var MSView = Class.extend({
-    init: function(app) {
+    init: function(app, name) {
         this.app = app;
+        this.viewname = name;
     },
     load: function() {
         this.app.log('MSView::load');
@@ -22,13 +23,14 @@ var MSView = Class.extend({
         // NOP
     },
     error: function(error) {
-        var errorPopup = $('#error > .errorpopup');
-        var errorContent = $('#error > .errorpopup > .errorcontent');
+        if (!error) return;
         
-        errorContent.html((error instanceof Error) ? error.stack : error);
+        var errorPopup = $('#' + this.viewname + '-error');
+        var errorContent = $('#' + this.viewname + '-error > .errorcontent');
+        
+        errorContent.text((error instanceof Error) ? error.stack.toString() : error.toString());
         errorPopup.popup('open');
         
-        // TODO general error function
         if (error instanceof Error) {
             console.error(error.stack);
         } else {

@@ -1,7 +1,7 @@
 var MSSettingsView = MSView.extend({
     init: function(app) {
         app.log("MSSettingsView::init");
-        this._super(app);
+        this._super(app, 'settings');
         
         this.content = $("#settings > [data-role=content]");
         this.currentView = 'general';
@@ -129,17 +129,21 @@ MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.SettingsFrame.extend({
                 var addButton = $('#newactivity');
                 addButton.button();
                 addButton.on('vclick', function(event) {
+                    var activity = newInput.val();
                     view.app.database.addMoodActivity(
                         // name
-                        newInput.val(),
+                        activity,
                         // onSuccess
                         function() {
-                            list.append('<li data-activity="' + newInput.val() + '">' + newInput.val() + '</li>');
+                            list.append('<li data-icon="delete"><a href="#settings" data-activity="' + activity + '"'
+                                + '>' + activity + '</a></li>');
                             list.listview('refresh');
                             newInput.val('');
                         },
                         // onError
-                        view.error
+                        function(e) { 
+                            view.error(e);
+                        }
                     );
                 });
             },
