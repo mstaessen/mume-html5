@@ -130,6 +130,11 @@ MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.SettingsFrame.extend({
                 addButton.button();
                 addButton.on('vclick', function(event) {
                     var activity = newInput.val();
+                    
+                    if (!activity || activity === '') {
+                        view.error("Please enter an activity...");
+                    }
+                    
                     view.app.database.addMoodActivity(
                         // name
                         activity,

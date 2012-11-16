@@ -28,13 +28,9 @@ var MSView = Class.extend({
         var errorPopup = $('#' + this.viewname + '-error');
         var errorContent = $('#' + this.viewname + '-error > .errorcontent');
         
-        errorContent.text((error instanceof Error) ? error.stack.toString() : error.toString());
+        errorContent.text((error.stack) ? error.stack.toString() : error.toString());
         errorPopup.popup('open');
         
-        if (error instanceof Error) {
-            console.error(error.stack);
-        } else {
-            console.error(error);
-        }
+        console.error(error.stack ? error.stack : error);
     }
 });
