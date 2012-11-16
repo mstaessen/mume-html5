@@ -5,7 +5,7 @@ Error.__createSubClassMethod = function(parent) {
         window[name] = parent.extend({
             init: function(msg) {
                 Error.apply(this, [msg]);
-                Error.captureStackTrace(this, window[name]);
+                if (Error.captureStackTrace) Error.captureStackTrace(this, window[name]);
             }
         });
         
