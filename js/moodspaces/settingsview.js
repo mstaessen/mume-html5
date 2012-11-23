@@ -11,7 +11,7 @@ var MSSettingsView = MSView.extend({
         this.frames.general = new MSSettingsView.GeneralSettingsFrame(this);
         this.frames.people = new MSSettingsView.PeopleSettingsFrame(this);
         this.frames.activities = new MSSettingsView.ActivitiesSettingsFrame(this);
-        this.frames.places = new MSSettingsView.PlacesSettingsFrame(this);
+        this.frames.spots = new MSSettingsView.SpotsSettingsFrame(this);
     },
     load: function() {
         this.app.log("MSSettingsView::load");
@@ -63,6 +63,173 @@ MSSettingsView.SettingsFrame = Class.extend({
     }
 });
 
+MSSettingsView.ListSettingsFrame = MSSettingsView.SettingsFrame.extend({
+    init: function(view, name) {
+        this._super(view, name);
+    },
+    load: function() {
+        if(!this._super())
+            return;
+        
+        var contentpane = this.view.content;
+        var self = this;
+        
+        // Create the popup
+        
+        contentpane.append('<div id="settingspopup" style="padding: 1.5em;">'
+                +'<h3>Edit post</h3>'
+                +'<input type="text" id="rename"></input>'
+                +'<a data-action="rename" data-role="button" data-inline="true" data-icon="check">Rename</a>'
+			    +'<a data-action="cancel" data-role="button" data-inline="true">Cancel</a>'
+		        +'<a data-action="remove" data-role="button" data-icon="delete" data-theme="r">Remove</a>'
+		    +'</div>');
+        
+        this.popup = $('#settingspopup');
+        var popup = this.popup;
+        
+        popup.trigger('create');
+        popup.popup();
+        
+        // Create the list
+        contentpane.append('<ul data=role="listview" data-filter-placeholder="true" data-table-role="settingslist"></ul>');
+        this.list = $('ul[data-table-role=settingslist]');
+        var list = this.list;
+        
+        this.iterateElements(
+            // iter
+            function(e) {
+                self.appendToList(e, true);
+            },
+            // onSuccess
+            function() {
+                list.trigger('create');
+                list.listview();
+                list.listview('refresh');
+                
+                contentpane.append('<br style="clear: both;" />');
+                contentpane.append('<div><input id="newname" type="text" placeholder="New" />'
+                        + '<a id="addelem" data-role="button" data-icon="plus">Add</a></div>');
+                $('#newname').parent().trigger('create');
+                
+                $('#addelem').on('vclick', function() {
+                    var name = $('#newname').val();
+                    storeNewElement(
+                        // new name
+                        name,
+                        // onSuccess
+                        function(id) {
+                            self.appendToList({ id: id, name: name, active: 'TRUE' });
+                            $('#newname').val('');
+                        },
+                        // onError
+                        self.view.error
+                    )
+                });
+                
+                self.resetListElemListeners();
+            },
+            // onError
+            self.view.error
+        );
+    },
+    unload: function() {
+        this._super();
+    },
+    appendToList: function(elem, batchMode) {
+        if (elem.active !== 'TRUE') {
+            return;
+        }
+        
+        var elemid = elem.id ? elem.id : this.getId(elem);
+        var elemname = this.getName(elem);
+        
+        this.list.append('<li data-split-icon="gear" data-elem-id="' + elemid + '">'
+                +'<a class="elem" data-elem-id="' + elemid + '">' + elemname + '</a>'
+                +'<a class="editelem" data-elem-id="' + elemid + '" data-elem-name="' + elemname + '">Edit</a>'
+            +'</li>'
+        );
+        
+        if (!batchMode) {
+            this.list.listview('refresh');
+            this.resetListElemListeners();
+        }
+    },
+    resetListElemListeners: function() {
+        var self = this;
+        var editbuttons = $('a.editelem');
+        
+        editbuttons.off('vclick');
+        editbuttons.on('vclick', function() {
+            self.editingElement = $(this).data('elem-id');
+            $('#rename').val($(this).data('elem-name'));
+            
+            self.showPopup();
+        });
+    },
+    getId: function(elem) {
+        return elem.id;
+    },
+    getName: function(elem) {
+        return elem.name;
+    },
+    storeNewElement: function(name, onSuccess, onError) {
+        onError(new Error("Stub ListSettingsFrame::storeNewElement"));
+    },
+    iterateElements: function(iter, onSuccess, onError) {
+        onError(new Error("Stub ListSettingsFrame::iterateElements"));
+    },
+    renameElement: function(id, newName, onSuccess, onError) {
+        onError(new Error("Stub ListSettingsFrame::renameElement"));
+    },
+    removeElement: function(id, onSuccess, onError) {
+        onError(new Error("Stub ListSettingsFrame::removeElement"));
+    },
+    showPopup: function() {
+        var self = this;
+        var buttons = $('#settingspopup > a[data-role=button]');
+        var popup = $('#settingspopup');
+
+        buttons.off('vclick');
+        buttons.on('vclick', function() {
+            var action = $(this).data('action');
+
+            if (action === 'rename') {
+                var newName = $('#settingspopup > input').val();
+                self.renameElement(
+                    // id
+                    self.editingElement,
+                    // new name
+                    newName,
+                    // onSuccess
+                    function() {
+                        $('a.elem[data-elem-id=' + self.editingElement + ']').text(newName);
+                        self.list.listview('refresh');
+                    },
+                    // onError
+                    self.view.error
+                );
+            } else if (action === 'remove') {
+                self.removeElement(
+                    // id
+                    self.editingElement,
+                    // onSuccess
+                    function() {
+                        $('li[data-elem-id=' + self.editingElement + ']').remove();
+                        self.list.listview('refresh');
+                    },
+                    // onError
+                    self.view.error
+                );
+            }
+            
+            $('#settingspopup > input').val('');
+            popup.popup('close');
+        });
+        
+        popup.popup('open');
+    } 
+});
+
 MSSettingsView.GeneralSettingsFrame = MSSettingsView.SettingsFrame.extend({
     init: function(view) {
         this._super(view, 'general');
@@ -95,196 +262,44 @@ MSSettingsView.PeopleSettingsFrame = MSSettingsView.SettingsFrame.extend({
     }
 });
 
-MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.SettingsFrame.extend({
+MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
     init: function(view) {
         this._super(view, 'activities');
     },
-    load: function() {
-        if (!this._super()) return;
-        
-        var view = this.view;
-        var self = this;
-        
-        view.content.append('<ul data-role="listview" data-filter-placeholder="true" data-table-role="activities"></ul>');
-        var list = $('ul[data-table-role=activities]');
-        
-        view.app.database.iterateMoodActivities(
-            //iter
-            function (activity) {
-                if (activity.active)
-                    list.append('<li data-icon="delete"><a href="#settings" data-activity="' + activity.activityid + '"'
-                        + '>' + activity.name + '</a></li>');
-            },
-            // onSuccess
-            function() {
-                view.content.trigger('create');
-                list.listview('refresh');
-                
-                view.content.append('<br style="clear: both;" />');
-                
-                view.content.append('<div><input id="newactivityName" type="input" placeholder="New Activity" />'
-                    + '<a id="newactivity" href="#settings" data-role="button" data-icon="plus">Add</a></div>');
-                var newInput = $('#newactivityName');
-                newInput.textinput();
-        
-                var addButton = $('#newactivity');
-                addButton.button();
-                addButton.on('vclick', function(event) {
-                    var activity = newInput.val();
-                    
-                    if (!activity || activity === '') {
-                        view.error("Please enter an activity...");
-                    }
-                    
-                    view.app.database.addMoodActivity(
-                        // name
-                        activity,
-                        // onSuccess
-                        function() {
-                            list.append('<li data-icon="delete"><a href="#settings" data-activity="' + activity + '"'
-                                + '>' + activity + '</a></li>');
-                            list.listview('refresh');
-                            newInput.val('');
-                        },
-                        // onError
-                        function(e) { 
-                            view.error(e);
-                        }
-                    );
-                });
-            },
-            // onError
-            view.error
-        )
+    getId: function(elem) {
+        return elem.id ? elem.id : elem.activityid;
     },
-    unload: function() {
-        this._super();
+    storeNewElement: function(name, onSuccess, onError) {
+        this.view.app.database.addMoodActivity(name, onSuccess, onError);
+    },
+    iterateElements: function(iter, onSuccess, onError) {
+        this.view.app.database.iterateMoodActivities(iter, onSuccess, onError);
+    },
+    renameElement: function(id, newName, onSuccess, onError) {
+        this.view.app.database.renameMoodActivity(id, newName, onSuccess, onError);
+    },
+    removeElement: function(id, onSuccess, onError) {
+        this.view.app.database.deactivateMoodActivity(id, onSuccess, onError);
     }
 });
 
-MSSettingsView.PlacesSettingsFrame = MSSettingsView.SettingsFrame.extend({
+MSSettingsView.SpotsSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
     init: function(view) {
-        this._super(view, 'places');
+        this._super(view, 'spots');
     },
-    load: function() {
-        if (!this._super()) return;
-        
-        var view = this.view;
-        var self = this;
-        
-        view.content.append('<div id="spotpopup" style="padding: 1.5em;">'
-			+'<h3>Edit post</h3>'
-            +'<input type="text" id="spotnewname"></input>'
-            +'<a data-action="rename" data-role="button" data-inline="true" data-icon="check">Rename</a>'
-			+'<a data-action="cancel" data-role="button" data-inline="true">Cancel</a>'
-			+'<a data-action="remove" data-role="button" data-icon="delete" data-theme="r">Remove</a>'
-		+'</div>');
-        $('#spotpopup').trigger('create');
-        $('#spotpopup').popup();
-        
-        view.content.append('<ul data-role="listview" data-filter-placeholder="true" data-table-role="places"></ul>');
-        var list = $('ul[data-table-role=places]');
-        this.list = list;
-        
-        var appendToList = function(spot) {
-            if (!spot.active || (spot.active !== 'TRUE'))
-                return;
-            
-            list.append('<li data-split-icon="gear" data-spot="' + spot.spotid + '"><a class="elem" href="#settings" data-spot="' + spot.spotid + '"'
-                + '>' + spot.name + '</a><a href="#settings" class="editspot" data-spot="' + spot.spotid + '">Edit</a></li>');
-        }
-        
-        var resetListeners = function() {
-            var editbuttons = $('a.editspot');
-            editbuttons.off('vclick');
-            editbuttons.on('vclick', function() {
-                self.editingSpot = $(this).data('spot');
-                view.app.database.getMoodSpot(self.editingSpot, function(name) { $('#spotnewname').val(name); }, view.error);
-                self.showPopup();
-            });
-        }
-        
-        view.app.database.iterateMoodSpots(
-            //iter
-            appendToList,
-            // onSuccess
-            function() {
-                view.content.trigger('create');
-                list.listview('refresh');
-                
-                view.content.append('<br style="clear: both;" />');
-                
-                view.content.append('<div><input id="newspotName" type="input" placeholder="New MoodSpot" />'
-                    + '<a id="newspot" href="#settings" data-role="button" data-icon="plus">Add</a></div>');
-                var newInput = $('#newspotName');
-                newInput.textinput();
-        
-                var addButton = $('#newspot');
-                addButton.button();
-                addButton.on('vclick', function(event) {
-                    var spot = newInput.val();
-                    
-                    if (!spot || spot === '') {
-                        view.error("Please enter a spot...");
-                    }
-                    
-                    view.app.database.addMoodSpot(
-                        // name
-                        spot,
-                        // onSuccess
-                        function(id) {
-                            appendToList({ spotid: id, name: spot, active: true });
-                            list.listview('refresh');
-                            newInput.val('');
-                            
-                            resetListeners();
-                        },
-                        // onError
-                        view.error
-                    );
-                });
-                    
-                resetListeners();
-            },
-            // onError
-            view.error
-        )
+    getId: function(elem) {
+        return elem.id ? elem.id : elem.spotid;
     },
-    unload: function() {
-        this._super();
+    storeNewElement: function(name, onSuccess, onError) {
+        this.view.app.database.addMoodSpot(name, onSuccess, onError);
     },
-    showPopup: function() {
-        var self = this;
-        
-        var buttons = $('#spotpopup > a[data-role=button]');
-        buttons.off('vclick');
-        buttons.on('vclick', function() {
-            var action = $(this).data('action');
-
-            if (action == 'rename') {
-                self.renameSelected($('#spotpopup > input').val());
-            } else if (action == 'remove') {
-                self.removeSelected();
-            }
-            
-            $('#spotpopup > input').val('');
-            $('#spotpopup').popup('close');
-        });
-        
-        $('#spotpopup').popup('open');
+    iterateElements: function(iter, onSuccess, onError) {
+        this.view.app.database.iterateMoodSpots(iter, onSuccess, onError);
     },
-    renameSelected: function(newName) {
-        var self = this;
-        this.view.app.database.renameMoodSpot(this.editingSpot, newName, function(){
-            $('a.elem[data-spot=' + self.editingSpot + ']').text(newName);
-            self.list.listview('refresh');
-        }, this.view.error);
+    renameElement: function(id, newName, onSuccess, onError) {
+        this.view.app.database.renameMoodSpot(id, newName, onSuccess, onError);
     },
-    removeSelected: function() {
-        var self = this;
-        this.view.app.database.deactivateMoodSpot(this.editingSpot, function() {
-            $('li[data-spot=' + self.editingSpot + ']').remove();
-            self.list.listview('refresh');
-        }, this.view.error);
+    removeElement: function(id, onSuccess, onError) {
+        this.view.app.database.deactivateMoodSpot(id, onSuccess, onError);
     }
 });

@@ -3,8 +3,9 @@ var MSView = Class.extend({
         this.app = app;
         this.viewname = name;
         
-        this.error = function(error) {
+        this.error = function(error, e) {
             if (!error) return;
+            if (!error instanceof Error) error = e;
         
             var errorPopup = $('#' + name + '-error');
             var errorContent = $('#' + name + '-error > .errorcontent');

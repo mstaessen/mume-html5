@@ -543,30 +543,39 @@ var DataBase = Class.extend({
     renameMoodSpot: function(id, newName, onSuccess, onError) {
         var self = this;
         
-        self._transaction(function(tx) {
-            self._update(
-                // Transaction
-                tx,
-                // Table
-                'moodSpots',
-                // Column(s) to change
-                'name',
-                // The new value(s)
-                newName,
-                // WHERE
-                'spotid = ?',
-                // args
-                [id],
-                // onSuccess
-                function() {
-                    onSuccess();
-                },
-                // onError
-                function(tx, err) {
-                    onError(err);
+        this.hasMoodSpot(newName,
+            function(found) {
+                if (found) {
+                    onError(new AlreadyExistsException("MoodSpot " + newName + " already exists"));
+                    return;
                 }
-            );
-        });
+                
+                self._transaction(function(tx) {
+                    self._update(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodSpots',
+                        // Column(s) to change
+                        'name',
+                        // The new value(s)
+                        newName,
+                        // WHERE
+                        'spotid = ?',
+                        // args
+                        [id],
+                        // onSuccess
+                        function() {
+                            onSuccess();
+                        },
+                        // onError
+                        function(tx, err) {
+                            onError(err);
+                        }
+                    );
+                });
+            }
+        )
     },
     deactivateMoodSpot: function(id, onSuccess, onError) {
         var self = this;
@@ -792,30 +801,40 @@ var DataBase = Class.extend({
     renameMoodActivity: function(id, newName, onSuccess, onError) {
         var self = this;
         
-        self._transaction(function(tx) {
-            self._update(
-                // Transaction
-                tx,
-                // Table
-                'moodActivities',
-                // Column(s) to change
-                'name',
-                // The new value(s)
-                newName,
-                // WHERE
-                'activityid = ?',
-                // args
-                [id],
-                // onSuccess
-                function() {
-                    onSuccess();
-                },
-                // onError
-                function(tx, err) {
-                    onError(err);
+        this.hasMoodActivity(newName,
+            function(found) {
+                if (found) {
+                    onError(new AlreadyExistsException("MoodActivity " + newName + " already exists"));
+                    return;
                 }
-            );
-        });
+                
+                self._transaction(function(tx) {
+                    self._update(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodActivities',
+                        // Column(s) to change
+                        'name',
+                        // The new value(s)
+                        newName,
+                        // WHERE
+                        'activityid = ?',
+                        // args
+                        [id],
+                        // onSuccess
+                        function() {
+                            onSuccess();
+                        },
+                        // onError
+                        function(tx, err) {
+                            onError(err);
+                        }
+                    );
+                });
+            },
+            onError
+        )
     },
     deactivateMoodActivity: function(id, onSuccess, onError) {
         var self = this;
