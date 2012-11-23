@@ -5,17 +5,6 @@ var MoodSpaces = Class.extend({
         var self = this;
         
         this.database = new DataBase(this, 'MoodSpaces');
-        // TODO this clears the old database, remove this when no longer needed
-        this.database.delete(
-            // onSuccess
-            function() {
-                self.log("Database MoodPlaces deleted");
-            },
-            // onError
-            self.error,
-            // name
-            'MoodPlaces'
-        );
 
         this.mainView = new MSMainView(this);
         this.newMoodView = new MSNewMoodView(this);

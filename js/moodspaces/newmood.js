@@ -164,7 +164,7 @@ var MSNewMoodView = MSView.extend({
         var locationSelect = $('#newmood-location');
         this.app.database.iterateMoodSpots(
             function(spot) {
-                locationSelect.append('<option value="' + spot.spotId + '">' + spot.name + '</option>');
+                locationSelect.append('<option value="' + spot.spotid + '">' + spot.name + '</option>');
             }
         , function() {}, this.app.log);
         locationSelect.selectmenu('refresh', true);
@@ -173,7 +173,7 @@ var MSNewMoodView = MSView.extend({
         var activitySelect = $('#newmood-activity');
         this.app.database.iterateMoodActivities(
             function(activity) {
-                activitySelect.append('<option value="' + activity.activityId + '">' + activity.name + '</option>');
+                activitySelect.append('<option value="' + activity.activityid + '">' + activity.name + '</option>');
             }
         , function() {}, this.app.log);
         activitySelect.selectmenu('refresh', true);
@@ -248,6 +248,11 @@ var MSNewMoodView = MSView.extend({
         }
         if (selectedLocation == "") {
             this.error("Please enter a location");
+            return false;
+        }
+        
+        if (isNaN(selectedActivity) || isNaN(selectedLocation)) {
+            this.error("Something's gone wrong. Please refresh and try again. If the problem persists, please contact us @ github.com/mstaessen/mume-html5");
             return false;
         }
         

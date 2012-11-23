@@ -12,71 +12,62 @@ var DataBase = Class.extend({
         this.app = app;
         this.dbname = name;
         
-        var keys = this.keys = [];
-        keys['moodSpots'] = 'moodSpots';
-        keys['moodSpots_nameIdx'] = 'moodSpotsNameIdx';
-        keys['moodEntries'] = 'moodEntries';
-        keys['moodEntries_spotIdx'] = 'entrySpotIdx';
-        keys['moodEntries_activityIdx'] = 'entryActivityIdx';
-        keys['moodEntries_timestampIdx'] = 'entryTimeStampIdx';
-        keys['moodActivities'] = 'moodActivities';
-        keys['moodActivities_nameIdx'] = 'activitiesNameIdx';
+        var self = this;
         
-        $.indexedDB(name, {
-            "version": 3,
-            "upgrade": function(tx) {
-                app.log('database upgraded');
-            },
-            "schema": {
-                "1": function(tx) {
-                    app.log("Installing v1 of the database schema");
-                    
-                    var moodEntries = tx.createObjectStore(keys['moodEntries'], {
-                        "autoIncrement": true,
-                        "keyPath": "entryId"
-                    });
-                    moodEntries.createIndex("spot", {
-                        "unique": false,
-                        "multiEntry": false
-                    }, keys['moodEntries_spotIdx']);
-                    moodEntries.createIndex("activity", {
-                        "unique": false,
-                        "multiEntry": false
-                    }, keys['moodEntries_activityIdx']);
-                    
-                    var moodSpots = tx.createObjectStore(keys['moodSpots'], {
-                        "autoIncrement": true,
-                        "keyPath": "spotId"
-                    });
-                    moodSpots.createIndex("name", {
-                        "unique": true
-                    }, keys['moodSpots_nameIdx']);
-                },
-                "2": function(tx) {
-                    app.log("Installing v2 of the database schema");
-                    
-                    var moodEntries = tx.objectStore(keys['moodEntries']);
-                    moodEntries.createIndex("timestamp", {
-                        "unique": true
-                    }, keys['moodEntries_timestampIdx']);
-                },
-                "3": function(tx) {
-                    app.log("Installing v3 of the database schema");
-                    
-                    var moodActivities = tx.createObjectStore(keys['moodActivities'], {
-                        "autoIncrement": true,
-                        "keyPath": "activityId"
-                    });
-                    moodActivities.createIndex("name", {
-                        "unique": true
-                    }, keys['moodActivities_nameIdx']);
-                }
+        var db = this._db = window.openDatabase(
+            // database name
+            name,
+            // database version
+            '',
+            // description
+            'MoodSpaces webapp',
+            // size (5kB)
+            5 * 1024,
+            // callback after opening
+            function() {
+                app.log('database moodSpaces opened');
             }
-        }).done(function(db, event) {
-            app.log('database ' + name + ' opened');
-        }).fail(function(error, event) {
-            app.log('erorr when opening database ' + name, error, event);
-        });
+        );
+        
+        if (db.version == '') {
+            db.changeVersion('', '0.1',
+                function (tx) {
+                    self._createTable(tx, 'moodSpots', ['spotid INTEGER PRIMARY KEY AUTOINCREMENT', 'name TEXT UNIQUE NOT NULL']);
+                    self._createTable(tx, 'moodActivities', ['activityid INTEGER PRIMARY KEY AUTOINCREMENT', 'name TEXT UNIQUE NOT NULL']);
+                
+                    self._createTable(tx, 'moodEntries',
+                        [
+                            'entryid INTEGER PRIMARY KEY AUTOINCREMENT',
+                            'spot INT NOT NULL',
+                            'activity INT NOT NULL',
+                            'r REAL NOT NULL',
+                            'phi REAL NOT NULL',
+                            'FOREIGN KEY (spot) REFERENCES moodSpots(spotid)',
+                            'FOREIGN KEY (activity) REFERENCES moodActivities(activityid)'
+                        ]
+                    );
+                }
+            );
+        }
+        
+        if (db.version == '0.1' || db.version == '0.2' || db.version == '0.3') {
+            db.changeVersion(db.version, '0.4',
+                function (tx) {
+                    tx.executeSql(
+                        // SQL
+                        'ALTER TABLE moodEntries ADD COLUMN date INT NOT NULL DEFAULT "0";',
+                        // args
+                        [],
+                        // onSuccess
+                        function () {
+                            self.app.log("Altered table moodEntries");
+                        },
+                        // onError
+                        self.error()
+                    );
+                }
+            );
+        }
     },
     
     /* DataBase::identity(var e)
@@ -86,25 +77,125 @@ var DataBase = Class.extend({
     identity: function(e) {
         return e;
     },
-    
-    /* DataBase::_open(String key)
+    /* DataBase::error()
      *
-     *  Internal use only!
-     *  Returns the objectStore for the given key.
+     *  Returns Function(Transaction, Error) to give as callback to the websql database.
      */
-    _open: function(key) {
-        return $.indexedDB(this.dbname).objectStore(this.keys[key]);
+    error: function() {
+        var self = this;
+        return function(tx, err) {
+            if (tx instanceof Error)
+                self.app.error(tx);
+            if (err)
+                self.app.error(err);
+        }
     },
-    /* DataBase::_index(String store, String idx)
+    /* DataBase::doNothing()
      *
-     *  Internal use only!
-     *  Returns index (store + '_' + idx) of objectStore store
+     * The null function
      */
-    _index: function(store, idx) {
-         return this._open(store).index(this.keys[store + '_' + idx]);
+    doNothing: function() {
+    },
+     
+    _transaction: function(f) {
+        this._db.transaction(f);
     },
     
-    /* DataBase::_iterate(String store, Function iter, Function onSuccess, Function onError[, Function map])
+    /* TODO write comment
+     */
+    _createTable: function(tx, name, args) {
+        var self = this;
+        try {
+            tx.executeSql(
+                // SQL
+                'CREATE TABLE IF NOT EXISTS ' + name + ' (' + args.join(', ') + ');',
+                // arguments
+                [],
+                // success callback
+                function() {
+                    self.app.log("Created table " + name);
+                },
+                // error callback
+                this.error()
+            );
+        } catch (e) {
+            self.app.error(e);
+        }
+    },
+    
+    /* TODO write comment
+     */
+    _select: function(tx, table, columns, where, arguments, onSuccess, onError) {
+        if (!columns) {
+            columns = '*';
+        }
+        if (columns.join) {
+            columns = columns.join(', ');
+        }
+        
+        if (!arguments) {
+            arguments = [];
+        }
+        if (!onSuccess) {
+            onSuccess = this.doNothing;
+        }
+        if (!onError) {
+            onError = this.error();
+        }
+        
+        try {
+            tx.executeSql(
+                // SQL
+                'SELECT ' + columns + ' FROM ' + table + (where ? ' WHERE ' + where : '') + ';',
+                // arguments
+                arguments,
+                // onSuccess
+                onSuccess,
+                // onError
+                onError
+            );
+        } catch (e) {
+            onError(null, e);
+        }
+    },
+    
+    /* TODO write comment
+     */
+    _insert: function(tx, table, columns, values, onSuccess, onError) {
+        if (columns.join) {
+            columns = columns.join(', ');
+        }
+        if (values.join) {
+            values = '"' + values.join('", "') + '"';
+        } else {
+            values = '"' + values + '"';
+        }
+        
+        if (!onSuccess) {
+            onSuccess = this.doNothing;
+        }
+        if (!onError) {
+            onError = this.error();
+        }
+        
+        try {
+            tx.executeSql(
+                // SQL
+                'INSERT INTO ' + table + ' (' + columns + ') VALUES (' + values + ');',
+                // args
+                [],
+                // onSuccess
+                onSuccess,
+                // onError
+                onError 
+            );
+        } catch (e) {
+            onError(null, e);
+        }
+    },
+    
+    
+    /* DataBase::_iterate(String table, Function iter, Function onSuccess, Function onError[, Function map])
      *
      *  Internal use only!
      *  On success: onSuccess() is called
@@ -112,20 +203,44 @@ var DataBase = Class.extend({
      *  Each iteration: iter(map(value)) is called with value from the ObjectStore store
      *  Function map: if not set, this function is set to DataBase::identity
      */
-    _iterate: function(store, iter, onSuccess, onError, map) {
+    _iterate: function(table, iter, onSuccess, onError, map, columns, where) {
         if (!map) {
             map = this.identity;
         }
+        var self = this;
         
-        try {
-            this._open(store).each(
-                function(element) {
-                    iter(map(element.value));
-                }
-            ).then(onSuccess, onError);
-        } catch (error) {
-            onError(error);
-        }
+        self._transaction(
+            function(tx) {
+                self._select(
+                    // Transaction
+                    tx,
+                    // Table
+                    table,
+                    // Columns
+                    columns,
+                    // where
+                    where,
+                    // arguments
+                    [],
+                    // onSuccess
+                    function(tx, resultset) {
+                        var rows = resultset.rows;
+                        
+                        var i = 0;
+                        while(i < rows.length) {
+                            var row = rows.item(i);
+                            
+                            iter(map(row));
+
+                            i++;
+                        }
+                        
+                        onSuccess();
+                    },
+                    onError
+                );
+            }
+        );
     },
     /* DataBase::_getAll(String store, Function onSuccess, Function onError[, Function map])
      *
@@ -134,7 +249,7 @@ var DataBase = Class.extend({
      *  On error: onError(error) is called
      *  Function map: if not set, this function is set to DataBase::identity
      */
-    _getAll: function(store, onSuccess, onError, map) {
+    _getAll: function(store, onSuccess, onError, map, columns, where) {
         try {
             var retVal = [];
             
@@ -150,7 +265,9 @@ var DataBase = Class.extend({
                     onSuccess(retVal);
                 },
                 onError,
-                map
+                map,
+                columns,
+                where
             );
         } catch (error) {
             onError(error);
@@ -190,6 +307,7 @@ var DataBase = Class.extend({
      */
     addMoodSpot: function(name, onSuccess, onError) {
         var self = this;
+        
         self.hasMoodSpot(name, function(found) {
             if (found) {
                 onError(new AlreadyExistsException("MoodSpot " + name + " already exists"));
@@ -197,11 +315,21 @@ var DataBase = Class.extend({
             }
             
             try {
-                self._open('moodSpots').add({name: name});
+                self._transaction(function(tx) {
+                    self._insert(tx, 'moodSpots', 'name', name,
+                        // onSuccess
+                        function() {
+                            self.getMoodSpotId(name, onSuccess, onError);
+                        },
+                        // onError
+                        function(tx, err) {
+                            onError(err);
+                        }
+                    );
+                });
             } catch (error) {
                 onError(error);
             }
-            self.getMoodSpotId(name, onSuccess, onError);
         }, onError);
     },
     /* DataBase::getMoodSpotId(String name, Function onSuccess, Function onError)
@@ -212,13 +340,36 @@ var DataBase = Class.extend({
      */
     getMoodSpotId: function(name, onSuccess, onError) {
         try {
-            this._index('moodSpots', 'nameIdx').getKey(name).then(function(key) {
-                if (typeof key === "undefined") {
-                    onError(new NotFoundException("MoodSpot with name " + name + " doesn't exist"));
-                } else {
-                    onSuccess(key);
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodSpots',
+                        // column
+                        'spotid AS id',
+                        // WHERE
+                        'name == "' + name + '"',
+                        // arguments
+                        null,
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodSpot with name" + name + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0).id);
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
                 }
-            }, onError);
+            );
         } catch (error) {
             onError(error);
         }
@@ -231,13 +382,36 @@ var DataBase = Class.extend({
      */
     getMoodSpot: function(id, onSuccess, onError) {
         try {
-            this._open('moodSpots').get(id).then(function(item) {
-                if (typeof item !== 'undefined') {
-                    onSuccess(item.name);
-                } else {
-                    onError(new NotFoundException("MoodSpot with id " + id + " doesn't exist"));
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodSpots',
+                        // column
+                        'name',
+                        // WHERE
+                        'id == "' + id + '"',
+                        // arguments
+                        null,
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodSpot with id" + id + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0).name);
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
                 }
-            }, onError);
+            );
         } catch (error) {
             onError(error);
         }
@@ -321,18 +495,28 @@ var DataBase = Class.extend({
      */
     addMoodActivity: function(name, onSuccess, onError) {
         var self = this;
-        self.hasMoodActivity(name, function(found) {
+        self.hasMoodActivity(name, function(found, tx) {
             if (found) {
                 onError(new AlreadyExistsException("MoodActivity " + name + " already exists"));
                 return;
             }
             
             try {
-                self._open('moodActivities').add({name: name});
+                self._transaction(function(tx) {
+                    self._insert(tx, 'moodActivities', 'name', name,
+                        // onSuccess
+                        function() {
+                            self.getMoodActivityId(name, onSuccess, onError);
+                        },
+                        // onError
+                        function(tx, err) {
+                            onError(err);
+                        }
+                    );
+                });
             } catch (error) {
                 onError(error);
             }
-            self.getMoodActivityId(name, onSuccess, onError);
         }, onError);
     },
     /* DataBase::getMoodActivityId(String name, Function onSuccess, Function onError)
@@ -343,13 +527,36 @@ var DataBase = Class.extend({
      */
     getMoodActivityId: function(name, onSuccess, onError) {
         try {
-            this._index('moodActivities', 'nameIdx').getKey(name).then(function(key) {
-                if (typeof key === "undefined") {
-                    onError(new NotFoundException("MoodActivity with name " + name + " doesn't exist"));
-                } else {
-                    onSuccess(key);
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodActivities',
+                        // column
+                        'activityid AS id',
+                        // WHERE
+                        'name == "' + name + '"',
+                        // arguments
+                        null,
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodActivity with name" + name + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0).id);
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
                 }
-            }, onError);
+            );
         } catch (error) {
             onError(error);
         }
@@ -362,13 +569,36 @@ var DataBase = Class.extend({
      */
     getMoodActivity: function(id, onSuccess, onError) {
         try {
-            this._open('moodActivities').get(id).then(function(item) {
-                if (typeof item !== 'undefined') {
-                    onSuccess(item.name);
-                } else {
-                    onError(new NotFoundException("MoodActivity with id " + id + " doesn't exist"));
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodActivities',
+                        // column
+                        'name',
+                        // WHERE
+                        'activityid == "' + id + '"',
+                        // arguments
+                        null,
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodActivity with id" + id + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0).name);
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
                 }
-            }, onError);
+            );
         } catch (error) {
             onError(error);
         }
@@ -438,36 +668,50 @@ var DataBase = Class.extend({
      * On error: onError(error) is called
      */
     addMoodEntry: function(entry, onSuccess, onError) {
+        if (!entry.date && entry.timestamp) {
+            entry.date = entry.timestamp;
+        }
+        
+        var self = this;
+        
+        console.log(entry);
+        
         try {
-            this._open('moodEntries').add(entry).then(onSuccess, onError);
+            self._transaction(function(tx) {
+                self._insert(
+                    // Transaction
+                    tx,
+                    // Table
+                    'moodEntries',
+                    // columns
+                    [
+                        'spot',
+                        'activity',
+                        'r',
+                        'phi',
+                        'date'
+                    ],
+                    // values
+                    [
+                        entry.spot,
+                        entry.activity,
+                        entry.selections[0].r,
+                        entry.selections[0].phi,
+                        entry.date
+                    ],
+                    // onSuccess
+                    function() {
+                        onSuccess();
+                    },
+                    // onError
+                    function(tx, err) {
+                        onError(err);
+                    }
+                );
+            });
         } catch (error) {
             onError(error);
         }
     },
     // which getters? (allow to iterate, allow to get all entries of a day ...
-    
-    /* DataBase::delete(Function onSuccess, Function onError[, String name])
-     *
-     *  Deletes the database called name (defaults to this.dbname)!!! Use with caution.
-     */
-    delete: function(onSuccess, onError, name) {
-        try {
-            if (!name) {
-                name = this.dbname;
-            }
-            
-            var self = this;
-            self.app.log("Clearing database " + name);
-            $.indexedDB(name).deleteDatabase().then(
-                // onSuccess
-                function() {
-                    self.app.log("Database cleared");
-                    onSuccess();
-                },
-                onError
-            );
-        } catch (error) {
-            onError(error);
-        }
-    }
 });
