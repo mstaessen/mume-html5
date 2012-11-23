@@ -51,6 +51,8 @@ var MoodSpaces = Class.extend({
             this.moodTasksView.load();
         } else if (hash == '#settings') {
             this.settingsView.load();
+        } else {
+            this.mainView.load();
         }
     },
     changePage: function(to, transition, reverse) {
