@@ -16,7 +16,6 @@ img/moodspaces-ipad.png
 img/moodspaces-iphone4.png
 js/jquery-1.8.2.min.js
 js/jquery.mobile-1.2.0.min.js
-js/jquery.indexeddb.js
 js/moodspaces.js
 js/svg.js
 js/db.js
@@ -30,7 +29,6 @@ js/moodspaces/moodspots.js
 js/moodspaces/moodtasks.js
 js/moodspaces/main.js
 js/error.js
-js/IndexedDBShim.min.js
 
 NETWORK:
 http://maps.gstatic.com/
