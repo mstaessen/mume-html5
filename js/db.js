@@ -68,6 +68,38 @@ var DataBase = Class.extend({
                 }
             );
         }
+        
+        if (db.version == '0.4') {
+            db.changeVersion('0.4', '0.5',
+                function (tx) {
+                    tx.executeSql(
+                        // SQL
+                        'ALTER TABLE moodSpots ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;',
+                        // args
+                        [],
+                        // onSuccess
+                        function() {
+                            self.app.log('Added column "active" to table moodSpots');
+                        },
+                        // onError
+                        self.error()
+                    );
+
+                    tx.executeSql(
+                        // SQL
+                        'ALTER TABLE moodActivities ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;',
+                        // args
+                        [],
+                        // onSuccess
+                        function() {
+                            self.app.log('Added column "active" to table moodActivities');
+                        },
+                        // onError
+                        self.error()
+                    );
+                }
+            );
+        }
     },
     
     /* DataBase::identity(var e)
@@ -188,6 +220,47 @@ var DataBase = Class.extend({
                 onSuccess,
                 // onError
                 onError 
+            );
+        } catch (e) {
+            onError(null, e);
+        }
+    },
+    
+    /* TODO write comment
+     */
+    _update: function(tx, table, columns, values, where, args, onSuccess, onError) {
+        var tmp;
+        if (columns.join) {
+            tmp = '';
+            for (var idx in columns) {
+                tmp += ', ' + columns[idx] + '="' + values[idx] + '"';
+            }
+            tmp = tmp.substr(2);
+        } else {
+            tmp = columns + '="' + values + '"';
+        }
+        
+        if (!onSuccess) {
+            onSuccess = this.doNothing;
+        }
+        if (!onError) {
+            onError = this.error();
+        }
+        
+        if (!args) {
+            args = [];
+        }
+        
+        try {
+            tx.executeSql(
+                // SQL
+                'UPDATE ' + table + ' SET ' + tmp + (where ? ' WHERE ' + where : '') + ';',
+                // args
+                args,
+                // onSuccess
+                onSuccess,
+                // onError
+                onError
             );
         } catch (e) {
             onError(null, e);
@@ -461,6 +534,40 @@ var DataBase = Class.extend({
             }
         );
     },
+    /* DataBase::renameMoodSpot(Integer id, String newName, Function onSuccess, Function onError)
+     *
+     * Renames the MoodSpot with the given id.
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    renameMoodSpot: function(id, newName, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._update(
+                // Transaction
+                tx,
+                // Table
+                'moodSpots',
+                // Column(s) to change
+                'name',
+                // The new value(s)
+                newName,
+                // WHERE
+                'spotid = ?',
+                // args
+                [id],
+                // onSuccess
+                function() {
+                    onSuccess();
+                },
+                // onError
+                function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
     
     /* DataBase::hasMoodActivity(String name, Function onSuccess, Function onError)
      *
@@ -647,6 +754,40 @@ var DataBase = Class.extend({
                 return activity.name;
             }
         );
+    },
+    /* DataBase::renameMoodActivity(Integer id, String newName, Function onSuccess, Function onError)
+     *
+     * Renames the MoodActivity with the given id.
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    renameMoodActivity: function(id, newName, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._update(
+                // Transaction
+                tx,
+                // Table
+                'moodActivities',
+                // Column(s) to change
+                'name',
+                // The new value(s)
+                newName,
+                // WHERE
+                'activityid = ?',
+                // args
+                [id],
+                // onSuccess
+                function() {
+                    onSuccess();
+                },
+                // onError
+                function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
     },
 
     /* The MoodEntry object:

@@ -108,11 +108,12 @@ MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.SettingsFrame.extend({
         view.content.append('<ul data-role="listview" data-filter-placeholder="true" data-table-role="activities"></ul>');
         var list = $('ul[data-table-role=activities]');
         
-        view.app.database.iterateMoodActivitiesNames(
+        view.app.database.iterateMoodActivities(
             //iter
             function (activity) {
-                list.append('<li data-icon="delete"><a href="#settings" data-activity="' + activity + '"'
-                    + '>' + activity + '</a></li>');
+                if (activity.active)
+                    list.append('<li data-icon="delete"><a href="#settings" data-activity="' + activity.activityid + '"'
+                        + '>' + activity.name + '</a></li>');
             },
             // onSuccess
             function() {
@@ -195,12 +196,18 @@ MSSettingsView.PlacesSettingsFrame = MSSettingsView.SettingsFrame.extend({
                 var addButton = $('#newspot');
                 addButton.button();
                 addButton.on('vclick', function(event) {
+                    var spot = newInput.val();
+                    
+                    if (!spot || spot === '') {
+                        view.error("Please enter a spot...");
+                    }
+                    
                     view.app.database.addMoodSpot(
                         // name
-                        newInput.val(),
+                        spot,
                         // onSuccess
                         function() {
-                            list.append('<li data-spot="' + newInput.val() + '">' + newInput.val() + '</li>');
+                            list.append('<li data-spot="' + spot + '">' + spot + '</li>');
                             list.listview('refresh');
                             newInput.val('');
                         },
