@@ -62,7 +62,7 @@ var MoodSpaces = Class.extend({
             // params
             {
                 reverse: !!reverse,
-                transition: (typeof transition == 'undefined') ? $.mobile.defaultPageTransition : transition
+                transition: (!transition) ? $.mobile.defaultPageTransition : transition
             }
         );
     },

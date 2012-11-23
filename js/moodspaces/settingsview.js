@@ -172,15 +172,41 @@ MSSettingsView.PlacesSettingsFrame = MSSettingsView.SettingsFrame.extend({
         var view = this.view;
         var self = this;
         
+        view.content.append('<div id="spotpopup" style="padding: 1.5em;">'
+			+'<h3>Edit post</h3>'
+            +'<input type="text" id="spotnewname"></input>'
+            +'<a data-action="rename" data-role="button" data-inline="true" data-icon="check">Rename</a>'
+			+'<a data-action="cancel" data-role="button" data-inline="true">Cancel</a>'
+			+'<a data-action="remove" data-role="button" data-icon="delete" data-theme="r">Remove</a>'
+		+'</div>');
+        $('#spotpopup').trigger('create');
+        $('#spotpopup').popup();
+        
         view.content.append('<ul data-role="listview" data-filter-placeholder="true" data-table-role="places"></ul>');
         var list = $('ul[data-table-role=places]');
+        this.list = list;
         
-        view.app.database.iterateMoodSpotsNames(
+        var appendToList = function(spot) {
+            if (!spot.active || (spot.active !== 'TRUE'))
+                return;
+            
+            list.append('<li data-split-icon="gear" data-spot="' + spot.spotid + '"><a class="elem" href="#settings" data-spot="' + spot.spotid + '"'
+                + '>' + spot.name + '</a><a href="#settings" class="editspot" data-spot="' + spot.spotid + '">Edit</a></li>');
+        }
+        
+        var resetListeners = function() {
+            var editbuttons = $('a.editspot');
+            editbuttons.off('vclick');
+            editbuttons.on('vclick', function() {
+                self.editingSpot = $(this).data('spot');
+                view.app.database.getMoodSpot(self.editingSpot, function(name) { $('#spotnewname').val(name); }, view.error);
+                self.showPopup();
+            });
+        }
+        
+        view.app.database.iterateMoodSpots(
             //iter
-            function (spot) {
-                list.append('<li data-icon="delete"><a href="#settings" data-place="' + spot + '"'
-                    + '>' + spot + '</a></li>');
-            },
+            appendToList,
             // onSuccess
             function() {
                 view.content.trigger('create');
@@ -206,15 +232,19 @@ MSSettingsView.PlacesSettingsFrame = MSSettingsView.SettingsFrame.extend({
                         // name
                         spot,
                         // onSuccess
-                        function() {
-                            list.append('<li data-spot="' + spot + '">' + spot + '</li>');
+                        function(id) {
+                            appendToList({ spotid: id, name: spot, active: true });
                             list.listview('refresh');
                             newInput.val('');
+                            
+                            resetListeners();
                         },
                         // onError
                         view.error
                     );
                 });
+                    
+                resetListeners();
             },
             // onError
             view.error
@@ -222,5 +252,39 @@ MSSettingsView.PlacesSettingsFrame = MSSettingsView.SettingsFrame.extend({
     },
     unload: function() {
         this._super();
+    },
+    showPopup: function() {
+        var self = this;
+        
+        var buttons = $('#spotpopup > a[data-role=button]');
+        buttons.off('vclick');
+        buttons.on('vclick', function() {
+            var action = $(this).data('action');
+
+            if (action == 'rename') {
+                self.renameSelected($('#spotpopup > input').val());
+            } else if (action == 'remove') {
+                self.removeSelected();
+            }
+            
+            $('#spotpopup > input').val('');
+            $('#spotpopup').popup('close');
+        });
+        
+        $('#spotpopup').popup('open');
+    },
+    renameSelected: function(newName) {
+        var self = this;
+        this.view.app.database.renameMoodSpot(this.editingSpot, newName, function(){
+            $('a.elem[data-spot=' + self.editingSpot + ']').text(newName);
+            self.list.listview('refresh');
+        }, this.view.error);
+    },
+    removeSelected: function() {
+        var self = this;
+        this.view.app.database.deactivateMoodSpot(this.editingSpot, function() {
+            $('li[data-spot=' + self.editingSpot + ']').remove();
+            self.list.listview('refresh');
+        }, this.view.error);
     }
 });

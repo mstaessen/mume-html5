@@ -466,7 +466,7 @@ var DataBase = Class.extend({
                         // column
                         'name',
                         // WHERE
-                        'id == "' + id + '"',
+                        'spotid == "' + id + '"',
                         // arguments
                         null,
                         // onSuccess
@@ -553,6 +553,34 @@ var DataBase = Class.extend({
                 'name',
                 // The new value(s)
                 newName,
+                // WHERE
+                'spotid = ?',
+                // args
+                [id],
+                // onSuccess
+                function() {
+                    onSuccess();
+                },
+                // onError
+                function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
+    deactivateMoodSpot: function(id, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._update(
+                // Transaction
+                tx,
+                // Table
+                'moodSpots',
+                // Column to change
+                'active',
+                // new value
+                'FALSE',
                 // WHERE
                 'spotid = ?',
                 // args
@@ -774,6 +802,34 @@ var DataBase = Class.extend({
                 'name',
                 // The new value(s)
                 newName,
+                // WHERE
+                'activityid = ?',
+                // args
+                [id],
+                // onSuccess
+                function() {
+                    onSuccess();
+                },
+                // onError
+                function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
+    deactivateMoodActivity: function(id, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._update(
+                // Transaction
+                tx,
+                // Table
+                'moodActivities',
+                // Column to change
+                'active',
+                // new value
+                'FALSE',
                 // WHERE
                 'activityid = ?',
                 // args

@@ -2,6 +2,18 @@ var MSView = Class.extend({
     init: function(app, name) {
         this.app = app;
         this.viewname = name;
+        
+        this.error = function(error) {
+            if (!error) return;
+        
+            var errorPopup = $('#' + name + '-error');
+            var errorContent = $('#' + name + '-error > .errorcontent');
+        
+            errorContent.text((error.stack) ? error.stack.toString() : error.toString());
+            errorPopup.popup('open');
+        
+            console.error(error.stack ? error.stack : error);
+        }
     },
     load: function() {
         this.app.log('MSView::load');
@@ -21,16 +33,5 @@ var MSView = Class.extend({
     unload: function() {
         this.app.log('MSView::unload');
         // NOP
-    },
-    error: function(error) {
-        if (!error) return;
-        
-        var errorPopup = $('#' + this.viewname + '-error');
-        var errorContent = $('#' + this.viewname + '-error > .errorcontent');
-        
-        errorContent.text((error.stack) ? error.stack.toString() : error.toString());
-        errorPopup.popup('open');
-        
-        console.error(error.stack ? error.stack : error);
     }
 });
