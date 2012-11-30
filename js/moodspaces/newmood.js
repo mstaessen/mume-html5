@@ -164,6 +164,8 @@ var MSNewMoodView = MSView.extend({
         var locationSelect = $('#newmood-location');
         this.app.database.iterateMoodSpots(
             function(spot) {
+                if (spot.active !== 'TRUE')
+                    return;
                 locationSelect.append('<option value="' + spot.spotid + '">' + spot.name + '</option>');
             }
         , function() {}, this.app.log);
@@ -173,6 +175,8 @@ var MSNewMoodView = MSView.extend({
         var activitySelect = $('#newmood-activity');
         this.app.database.iterateMoodActivities(
             function(activity) {
+                if (activity.active !== 'TRUE')
+                    return;
                 activitySelect.append('<option value="' + activity.activityid + '">' + activity.name + '</option>');
             }
         , function() {}, this.app.log);
