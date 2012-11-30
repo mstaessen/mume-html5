@@ -113,7 +113,7 @@ MSSettingsView.ListSettingsFrame = MSSettingsView.SettingsFrame.extend({
                 
                 $('#addelem').on('vclick', function() {
                     var name = $('#newname').val();
-                    storeNewElement(
+                    self.storeNewElement(
                         // new name
                         name,
                         // onSuccess

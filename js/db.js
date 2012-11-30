@@ -30,7 +30,7 @@ var DataBase = Class.extend({
         );
         
         if (db.version == '') {
-            db.changeVersion('', '0.1',
+            db.changeVersion('', '1',
                 function (tx) {
                     self._createTable(tx, 'moodSpots', ['spotid INTEGER PRIMARY KEY AUTOINCREMENT', 'name TEXT UNIQUE NOT NULL']);
                     self._createTable(tx, 'moodActivities', ['activityid INTEGER PRIMARY KEY AUTOINCREMENT', 'name TEXT UNIQUE NOT NULL']);
@@ -50,8 +50,8 @@ var DataBase = Class.extend({
             );
         }
         
-        if (db.version == '0.1' || db.version == '0.2' || db.version == '0.3') {
-            db.changeVersion(db.version, '0.4',
+        if (db.version == '1' || db.version == '2' || db.version == '3') {
+            db.changeVersion(db.version, '4',
                 function (tx) {
                     tx.executeSql(
                         // SQL
@@ -68,9 +68,9 @@ var DataBase = Class.extend({
                 }
             );
         }
-        
-        if (db.version == '0.4') {
-            db.changeVersion('0.4', '0.5',
+
+        if (db.version == '4') {
+            db.changeVersion('4', '5',
                 function (tx) {
                     tx.executeSql(
                         // SQL
@@ -100,6 +100,12 @@ var DataBase = Class.extend({
                 }
             );
         }
+
+	if (db.version.match(/0\.[0-9]/)) {
+	   db.changeVersion(db.version, '5', function() {});
+	}
+        
+
     },
     
     /* DataBase::identity(var e)
@@ -383,7 +389,23 @@ var DataBase = Class.extend({
         
         self.hasMoodSpot(name, function(found) {
             if (found) {
-                onError(new AlreadyExistsException("MoodSpot " + name + " already exists"));
+                self.isActiveMoodSpot(name, 
+                    // onSuccess
+                    function (active) {
+                        if (active) {
+                            onError(new AlreadyExistsException("MoodSpot " + name + " already exists"));
+                            return;
+                        } else {
+                            self.activateMoodSpot(name,
+                                function() {
+                                    self.getMoodSpotId(name, onSuccess, onError);
+                                },
+                                onError
+                            );
+                        }
+                    },
+                    onError
+                )
                 return;
             }
             
@@ -577,7 +599,31 @@ var DataBase = Class.extend({
             }
         )
     },
+    /* DataBase::deactivateMoodSpot(var id, Function onSuccess, Function onError)
+     *
+     *  Deactivates the MoodSpot with (spotid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
     deactivateMoodSpot: function(id, onSuccess, onError) {
+        this.setActiveMoodSpot(id, false, onSuccess, onError);
+    },
+    /* DataBase::activateMoodSpot(var id, Function onSuccess, Function onError)
+     *
+     *  Activates the MoodSpot with (spotid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    activateMoodSpot: function(id, onSuccess, onError) {
+        this.setActiveMoodSpot(id, true, onSuccess, onError);
+    },
+    /* DataBase::setActiveMoodSpot(var id, boolean active, Function onSuccess, Function onError)
+     *
+     *  Sets (active = (active?'TRUE':'FALSE') for the MoodSpot with (spotid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    setActiveMoodSpot: function(id, active, onSuccess, onError) {
         var self = this;
         
         self._transaction(function(tx) {
@@ -589,17 +635,54 @@ var DataBase = Class.extend({
                 // Column to change
                 'active',
                 // new value
-                'FALSE',
+                active ? 'TRUE' : 'FALSE',
                 // WHERE
-                'spotid = ?',
+                'name == ? OR spotid = ?',
                 // args
-                [id],
+                [id, id],
                 // onSuccess
                 function() {
                     onSuccess();
                 },
                 // onError
                 function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
+    /* DataBase::isActiveMoodSpot(var id, Function onSuccess, Function onError)
+     *
+     *  Check if the moodspot with (spotid == id) || (name == id) is active
+     *  On success: onSuccess(active) is called, with active a boolean
+     *  On error: onError(error) is called
+     */
+    isActiveMoodSpot: function(id, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._select(
+                // Transaction
+                tx,
+                // Table
+                'moodSpots',
+                // column
+                'active',
+                // WHERE
+                'spotid == ? OR name == ?',
+                // args
+                [id, id],
+                // onSuccess
+                function (tx, res) {
+                    var rows = res.rows;
+                    if (rows.length == 0) {
+                        onError(new NotFoundException("MoodSpot with id" + id + "doesn't exist"));
+                    } else {
+                        onSuccess(rows.item(0).active == 'TRUE');
+                    }
+                },
+                // onError
+                function (tx, err) {
                     onError(err);
                 }
             );
@@ -641,7 +724,23 @@ var DataBase = Class.extend({
         var self = this;
         self.hasMoodActivity(name, function(found, tx) {
             if (found) {
-                onError(new AlreadyExistsException("MoodActivity " + name + " already exists"));
+                self.isActiveMoodActivity(name, 
+                    // onSuccess
+                    function (active) {
+                        if (active) {
+                            onError(new AlreadyExistsException("MoodActivity " + name + " already exists"));
+                            return;
+                        } else {
+                            self.activateMoodActivity(name,
+                                function() {
+                                    self.getMoodActivityId(name, onSuccess, onError);
+                                },
+                                onError
+                            );
+                        }
+                    },
+                    onError
+                )
                 return;
             }
             
@@ -836,7 +935,31 @@ var DataBase = Class.extend({
             onError
         )
     },
+    /* DataBase::deactivateMoodActivity(var id, Function onSuccess, Function onError)
+     *
+     *  Activates the MoodActivity with (activityid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
     deactivateMoodActivity: function(id, onSuccess, onError) {
+        this.setActiveMoodActivity(id, false, onSuccess, onError);
+    },
+    /* DataBase::activateMoodActivity(var id, Function onSuccess, Function onError)
+     *
+     *  Activates the MoodActivity with (activityid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    activateMoodActivity: function(id, onSuccess, onError) {
+        this.setActiveMoodActivity(id, true, onSuccess, onError);
+    },
+    /* DataBase::setActiveMoodActivity(var id, boolean active, Function onSuccess, Function onError)
+     *
+     *  Sets (active = (active?'TRUE':'FALSE') for the MoodActivity with (activityid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    setActiveMoodActivity: function(id, active, onSuccess, onError) {
         var self = this;
         
         self._transaction(function(tx) {
@@ -848,17 +971,54 @@ var DataBase = Class.extend({
                 // Column to change
                 'active',
                 // new value
-                'FALSE',
+                active ? 'TRUE' : 'FALSE',
                 // WHERE
-                'activityid = ?',
+                'name == ? OR activityid = ?',
                 // args
-                [id],
+                [id, id],
                 // onSuccess
                 function() {
                     onSuccess();
                 },
                 // onError
                 function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
+    /* DataBase::isActiveMoodActivity(var id, Function onSuccess, Function onError)
+     *
+     *  Check if the moodactivity with (activityid == id) || (name == id) is active
+     *  On success: onSuccess(active) is called, with active a boolean
+     *  On error: onError(error) is called
+     */
+    isActiveMoodActivity: function(id, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._select(
+                // Transaction
+                tx,
+                // Table
+                'moodActivities',
+                // column
+                'active',
+                // WHERE
+                'activityid == ? OR name == ?',
+                // args
+                [id, id],
+                // onSuccess
+                function (tx, res) {
+                    var rows = res.rows;
+                    if (rows.length == 0) {
+                        onError(new NotFoundException("MoodActivity with id" + id + "doesn't exist"));
+                    } else {
+                        onSuccess(rows.item(0).active == 'TRUE');
+                    }
+                },
+                // onError
+                function (tx, err) {
                     onError(err);
                 }
             );
