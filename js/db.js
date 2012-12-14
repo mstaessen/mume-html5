@@ -820,6 +820,48 @@ var DataBase = Class.extend({
             onError(error);
         }
     },
+	/* DataBase::getMoodActivityObject(Integer id, Function onSuccess, Function onError)
+     *
+     *  On success: onSuccess(activity) is called with the moodactivity
+     *  If not found: onError(NotFoundException)
+     *  On error: onError(Error)
+     */
+    getMoodActivityObject: function(id, onSuccess, onError) {
+        try {
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodActivities',
+                        // column
+                        ['activityid', 'name', 'active'],
+                        // WHERE
+                        'activityid == "' + id + '"',
+                        // arguments
+                        null,
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodActivity with id" + id + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0));
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
+                }
+            );
+        } catch (error) {
+            onError(error);
+        }
+    },
     /* DataBase::getAllMoodActivities(Function onSuccess, Function onError[, Function map])
      *
      *  On success: onSuccess(activities) is called, with activities an array of the the Activity objects,
@@ -1063,6 +1105,29 @@ var DataBase = Class.extend({
             onError(error);
         }
     },
+	
+	/* DataBase::getAllMoodEntries(Function onSuccess, Function onError[, Function map])
+     *
+     *  On success: onSuccess(entries) is called, with entries an array of the the MoodEntry objects,
+     *              unless map is set, then MoodEntry is an array of the result of map.
+     *  On error: onError(error) is called
+     *  The map function: function(entry) { return entry.spot; } results in an array of spots.
+     */
+    getAllMoodEntries: function(onSuccess, onError, map) {
+        this._getAll('moodEntries', onSuccess, onError, map);
+    },
+	
+	/* DataBase::iterateMoodEntries(Function iter, Function onSuccess, Function onError, Function map)
+     *
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     *  Each moodEntry: iter(map(entry)) is called, with entry a MoodEntry
+     *  If map is not given, map is the identity function
+     */
+    iterateMoodEntries: function(iter, onSuccess, onError, map) {
+        this._iterate('moodEntries', iter, onSuccess, onError, map);
+    },
+	
     // which getters? (allow to iterate, allow to get all entries of a day ...
         
     _delete : function() {

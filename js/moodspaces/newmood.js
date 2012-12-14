@@ -114,6 +114,18 @@ var MSNewMoodView = MSView.extend({
             
             var r = Math.sqrt(x * x + y * y) / radius,
                 phi = Math.atan2(-y, x);
+				
+				
+			var angle = 0;
+			if(phi < 0){
+				angle = -phi;
+			} else{
+				angle = -phi + (2*Math.PI);
+			}
+			angle = Math.floor((angle*8)/(2*Math.PI));
+			
+			_this.app.log('hoek: ' + angle);
+			
             
             if (r > 1) {
                 return false;
