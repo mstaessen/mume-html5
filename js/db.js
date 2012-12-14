@@ -39,69 +39,23 @@ var DataBase = Class.extend({
             } else throw(e);
         }
         
-        var from4to5 = function() {
-            if (db.version === '4') {
-                db.changeVersion('4', '5',
-                    function (tx) {
-                        tx.executeSql(
-                            // SQL
-                            'ALTER TABLE moodSpots ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;',
-                            // args
-                            [],
-                            // onSuccess
-                            function() {
-                                self.app.log('Added column "active" to table moodSpots');
-                            },
-                            // onError
-                            self.error()
-                        );
-
-                        tx.executeSql(
-                            // SQL
-                            'ALTER TABLE moodActivities ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE;',
-                            // args
-                            [],
-                            // onSuccess
-                            function() {
-                                self.app.log('Added column "active" to table moodActivities');
-                            },
-                            // onError
-                            self.error()
-                        );
-                    },
-                    self.error
-                );
-            }
-        };
-        
-        var from_to4 = function() {
-            if (db.version === '1' || db.version === '2' || db.version === '3') {
-                db.changeVersion(db.version, '4',
-                    function (tx) {
-                        tx.executeSql(
-                            // SQL
-                            'ALTER TABLE moodEntries ADD COLUMN date INT NOT NULL DEFAULT "0";',
-                            // args
-                            [],
-                            // onSuccess
-                            function () {
-                                self.app.log("Altered table moodEntries");
-                            },
-                            // onError
-                            self.error()
-                        );
-                    },
-                    self.error,
-                    from4to5
-                );
-            }
-        }
-        
-        if (db.version === '0' || db.version == '') {
+        if (db.version == '' || db.version == '0') {
             db.changeVersion(db.version, '1',
-                function (tx) {
-                    self._createTable(tx, 'moodSpots', ['spotid INTEGER PRIMARY KEY AUTOINCREMENT', 'name TEXT UNIQUE NOT NULL']);
-                    self._createTable(tx, 'moodActivities', ['activityid INTEGER PRIMARY KEY AUTOINCREMENT', 'name TEXT UNIQUE NOT NULL']);
+                function(tx) {
+                    self._createTable(tx, 'moodSpots',
+                        [
+                            'spotid INTEGER PRIMARY KEY AUTOINCREMENT',
+                            'name TEXT UNIQUE NOT NULL',
+                            'active BOOLEAN NOT NULL DEFAULT TRUE'
+                        ]
+                    );
+                    self._createTable(tx, 'moodActivities',
+                        [
+                            'activityid INTEGER PRIMARY KEY AUTOINCREMENT',
+                            'name TEXT UNIQUE NOT NULL',
+                            'active BOOLEAN NOT NULL DEFAULT TRUE'
+                        ]
+                    );
                 
                     self._createTable(tx, 'moodEntries',
                         [
@@ -110,14 +64,20 @@ var DataBase = Class.extend({
                             'activity INT NOT NULL',
                             'r REAL NOT NULL',
                             'phi REAL NOT NULL',
+                            'date INT NOT NULL DEFAULT "0"',
                             'FOREIGN KEY (spot) REFERENCES moodSpots(spotid)',
                             'FOREIGN KEY (activity) REFERENCES moodActivities(activityid)'
                         ]
                     );
                 },
-                self.error,
-                from_to4
+                self.error
             );
+            
+            if (+db.version > 1) {
+                db.changeVersion(db.version, '1', function() {
+                    app.log("DataBase - Resetting version nb to 1");
+                });
+            }
         }
 
     },
