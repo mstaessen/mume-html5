@@ -267,6 +267,7 @@ var MSNewMoodView = MSView.extend({
         this.app.database.addMoodEntry(
             // the object to add
             {
+				//+ means that you transfor a string to a number
                 timestamp: +new Date, // Date.now is not implemented on some browsers...
                 spot: +selectedLocation,
                 activity: +selectedActivity,
@@ -282,5 +283,8 @@ var MSNewMoodView = MSView.extend({
         );
         
         return true;
-    }
+    },
+	getMoods: function() {
+		return this.moods;
+	}
 });
