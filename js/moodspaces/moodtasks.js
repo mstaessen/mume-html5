@@ -10,16 +10,24 @@ var MSMoodTasksView = MSView.extend({
 			this.moods[i] = bigMoods[i].label;
 		}
 		this.scoreMultiplier = 100;
+		
     },
     load: function() {
         this.app.log("MSMoodTasksView::load");
         this._super();
-		
 		var self = this;
 		
-		/*for(var j = 0; j < self.moods.length; j++) {
-			self.initList(self.moods[j]);
+		//TODO load the collapsable here and not in the html
+		/*for(var i=0;i<this.moods.length;i++){
+			$("#collapsibleset").append(
+			'<div data-role=collapsible data-collapsed=false data-theme="b" data-content-theme="d"> <h3>' 
+			+ this.moods[i] 
+			+ '</h3> <p> <ol data-role=listview id='
+			+ this.moods[i]
+			+ 'list></ol></p></div>'
+			);
 		}*/
+		
 		
 		this.app.database.getAllMoodActivities(
 			function(activities) {
@@ -34,7 +42,6 @@ var MSMoodTasksView = MSView.extend({
     unload: function() {
         this.app.log("MSMoodTasksView::unload");
         this._super();
-		//TODO delete all activities from the list, otherwise they are added again at each load.
 		for(var i=0; i<this.moods.length; i++){
 			$('#' + this.moods[i] + 'list').empty().listview('refresh');
 		}
@@ -51,8 +58,6 @@ var MSMoodTasksView = MSView.extend({
 			}
 		}
 		self.fillData(self.data, activities);
-		
-		self.app.log("function done");
 	},
 	fillData: function(data, activities){
 		var self = this;
@@ -62,14 +67,12 @@ var MSMoodTasksView = MSView.extend({
 		}
 		self.app.database.getAllMoodEntries(
 			//onSuccess
-			//TODO hier de lijst vullen met de gevulde data?
 			function(entries){
-				self.app.log("number of entries: " + entries.length);
+				self.app.log("total moodentries in the database: " + entries.length);
 				for(var i=0; i<entries.length; i++){
 					var curEntry = entries[i];
 					//calculate the correct selectedMoods in terms of the names of the moods.
 					var selectedMoodName = self.calcSelectedMoodName(curEntry.phi);
-					self.app.log("selected mood: " + selectedMoodName);
 					data[self.moods.indexOf(selectedMoodName)][activityIDs.indexOf(curEntry.activity)] += Math.floor(self.scoreMultiplier*curEntry.r);
 				}
 				for(var k = 0; k < data.length; k++) {
@@ -84,44 +87,18 @@ var MSMoodTasksView = MSView.extend({
 					for(var m=0; m<activityIDs.length; m++){
 						var currentIndex = sortedIndex[m];
 						var currentScore = currentMoodData[currentIndex];
-						self.app.log("currentIndex = " + currentIndex);
-						self.app.log("currentScore = " + currentScore);
 						var currentActivity = activities[currentIndex];
-						self.app.log("currentActivity = " + currentActivity);
 						if(currentActivity.active !== 'TRUE') {
 							return;
 						}
+						list.listview();
 						list.append('<li data-elem-id="' + currentActivity.activityid + '">'
 								+ currentActivity.name 
 								+ '<span class="ui-li-count">' + currentMoodData[currentIndex] + '</span>'
 								+ '</li>'
 							).listview('refresh');
-						
-						/*self.app.database.getMoodActivityObject(
-							activityIDs[currentIndex],
-							function(activity){
-								
-								if(activity.active !== 'TRUE') {
-									return;
-								}
-								self.app.log("got here = " + currentIndex + " actual index = " + activity.activityid);
-								self.app.log("currentScore = " + currentScore);
-								list.append('<li data-elem-id="' + activity.activityid + '">'
-										+ activity.name 
-										+ '<span class="ui-li-count">' + currentMoodData[currentIndex] + '</span>'
-										+ '</li>'
-									).listview('refresh');
-								
-							},
-							self.error
-						);*/
 					}
 				}
-				/*for(var i = 0; i < data.length; i++) {
-					for(var j = 0; j < data[i].length; j++){
-						self.app.log("data: (" + i + ", " + j + "): " + self.data[i][j]);
-					}
-				}*/
 			},
 			//onError
 			self.error
@@ -160,59 +137,5 @@ var MSMoodTasksView = MSView.extend({
 			return 0;
 		};
 		return index.sort(comparator);
-	},
-	initList: function(currentMood) {
-		/*TODO: 
-		-> steek alle activity namen (label) in een array. CHECK
-			-> maak een #arrays gelijk aan alle moods, 
-				elk van deze arrays bevat #activities entries CHECK
-		-> overloop alle MoodEntries in de database
-			-> verhoog de score van de activiteit die bij die moodentry hoort
-				gewoon de array van deze mood (of 2 moods) ophalen en daar de score van de juiste activiteit verhogen.
-		-> rank de activiteiten volgens score per mood uiteraard
-		*/
-	
-		var self = this;
-		var list = $('#' + currentMood + 'list');
-		
-		
-		
-		
-		
-		
-		//list.append('<li>' + 5 + '</li>').listview('refresh');
-		this.app.database.iterateMoodActivities(
-			//iter
-			function(e){
-				//self.list.trigger('create');
-				//self.list.listview();
-				//self.list.listview('refresh');
-				self.appendToList(e, list);
-				//self.list.listview('refresh');
-			}, 
-			//onSuccess
-			function() {
-			}
-			, 
-			//onError
-			self.error
-		);
-	},
-	appendToList: function(elem, list) {
-		if(elem.active !== 'TRUE') {
-			return;
-		}
-		var elemid = elem.id ? elem.id : this.getElemId(elem);
-		var elemname = this.getElemName(elem);
-		
-		list.append('<li data-elem-id="' + elemid + '">'
-			+ elemname + '</li>'
-		).listview('refresh');
-	},
-	getElemId: function(elem) {
-        return elem.id;
-    },
-    getElemName: function(elem) {
-        return elem.name;
-    }
+	}
 });

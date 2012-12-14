@@ -164,76 +164,22 @@
 <div data-role="page" id="moodtasks" data-add-back-btn="true">
     <div data-role="header">
         <h1>MoodTasks</h1>
+		<a href="#moodtaskshelp" data-icon="info" class="ui-btn-right">Help</a>
     </div>
     <div data-role="content">
 		<!-- Visualisation of the tasks -->
 		
-		<!--<ul data-role="listview" data-split-icon="gear"> 
-		 <li>
-			<a href="item-detail.html"> 
-			<h3>Item title</h3> 
-			<p>Item overview</p> 
-			</a>
-			<a href="item-purchase.html" data-rel="dialog">Purchase item</a>
-		  </li> 
-		  <li>
-			<a href="item-detail.html"> 
-			<h3>Item title</h3> 
-			<p>Item overview</p> 
-			</a>
-			<a href="item-purchase.html" data-rel="dialog">Purchase item</a>
-		  </li>
-		</ul>-->
-		
-		
-	
-		<!--<ul data-role="listview"> 
-		  <li data-role="list-divider">Joy</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Trust</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Fear</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Surprise</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Sadness</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Disgust</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Anger</li>
-		  <li><a href="#">Example</a></li>
-		  <li data-role="list-divider">Anticipation</li>
-		  <li><a href="#">Example</a></li>
-		</ul>-->
-		
-		<!--<ul data-role="listview"> 
-		  <li>
-			<a href="inbox.html">Inbox 
-			  <span class="ui-li-count">12</span>
-			</a>
-		  </li>
-		</ul>-->
-		
-		<!-- search bar 
-		<ul data-role="listview" data-filter="true">
-		  <li data-role="list-divider">C</li> 
-		  <li><a href="#">Chris A.</a></li>
-		  <li><a href="#">Cindy V.</a></li>
-		  <li data-role="list-divider">J</li>
-		  <li><a href="#">John B.</a></li>
-		  <li data-role="list-divider">T</li>
-		  <li><a href="#">Tammy D.</a></li>
-		</ul>-->
-		
-		<div data-role="collapsible-set" data-theme="c" data-content-theme="d">
+		<div data-role="collapsible-set" data-theme="b" data-content-theme="d" id="collapsibleset">
 			<div data-role="collapsible" data-collapsed="false">
 			<h3>Joy</h3>
 			<p>
 				<ol data-role="listview" id="joylist">
 					<!--<li>
 						Voorbeeld van score 
-						<span class="ui-li-count">12</span>
-					  </li>-->
+						<span class="ui-li-count ui-btn-up-c ui-btn-corner-all" style='right:55px;padding:3px;padding-left:20px'><a data-icon="gear">34</a></span>
+						<!--<span class="ui-li-count">score: 12</span>-->
+						<!--<span class="ui-li-aside  ui-btn-up-c ui-btn-corner-all">score:</span>-->
+					<!--</li>-->
                 </ol>
 			</p>
 			</div>
@@ -319,6 +265,25 @@
 			<button type="button" data-footer="settings" data-target="spots">Spots</button>
 		</div>
 	</div>
+	
+	<div id="settings-error" class="errorpopup ui-content" data-role="popup">
+		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+		<div class="errorcontent"></div>
+	</div>
+</div>
+
+<div data-role="page" id="moodtaskshelp" data-add-back-btn="true">
+    <div data-role="header">
+        <h1>Help</h1>
+    </div>
+    <div data-role="content">
+		<p>
+			MoodTasks shows all the moods as collapsable lists. </br>
+			Within each mood a list of the activities is shown. </br>
+			This list is sorted according to the score that the activities received for that mood. </br>
+			One mood selection can grant a task up to 100 points for the selected mood.
+		</p>
+    </div>
 	
 	<div id="settings-error" class="errorpopup ui-content" data-role="popup">
 		<a href="#new" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
