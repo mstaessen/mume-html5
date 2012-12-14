@@ -65,9 +65,9 @@
         <h4>Stats</h4>
         
         <a href="#moodspots" data-role="button">MoodSpots</a>
-        <a href="#moodpeeps" data-role="button">MoodPeeps</a>
+        <a href="#moodpeeps" data-role="button" class="ui-disabled">MoodPeeps</a>
         <a href="#moodtimes" data-role="button">MoodTimes</a>
-        <a href="#moodtasks" data-role="button" class="ui-disabled">MoodTasks</a>
+        <a href="#moodtasks" data-role="button">MoodTasks</a>
     </div>
 	
 	<div id="-error" class="errorpopup ui-content" data-role="popup">
@@ -166,7 +166,137 @@
         <h1>MoodTasks</h1>
     </div>
     <div data-role="content">
-        
+		<!-- Visualisation of the tasks -->
+		
+		<!--<ul data-role="listview" data-split-icon="gear"> 
+		 <li>
+			<a href="item-detail.html"> 
+			<h3>Item title</h3> 
+			<p>Item overview</p> 
+			</a>
+			<a href="item-purchase.html" data-rel="dialog">Purchase item</a>
+		  </li> 
+		  <li>
+			<a href="item-detail.html"> 
+			<h3>Item title</h3> 
+			<p>Item overview</p> 
+			</a>
+			<a href="item-purchase.html" data-rel="dialog">Purchase item</a>
+		  </li>
+		</ul>-->
+		
+		
+	
+		<!--<ul data-role="listview"> 
+		  <li data-role="list-divider">Joy</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Trust</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Fear</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Surprise</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Sadness</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Disgust</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Anger</li>
+		  <li><a href="#">Example</a></li>
+		  <li data-role="list-divider">Anticipation</li>
+		  <li><a href="#">Example</a></li>
+		</ul>-->
+		
+		<!--<ul data-role="listview"> 
+		  <li>
+			<a href="inbox.html">Inbox 
+			  <span class="ui-li-count">12</span>
+			</a>
+		  </li>
+		</ul>-->
+		
+		<!-- search bar 
+		<ul data-role="listview" data-filter="true">
+		  <li data-role="list-divider">C</li> 
+		  <li><a href="#">Chris A.</a></li>
+		  <li><a href="#">Cindy V.</a></li>
+		  <li data-role="list-divider">J</li>
+		  <li><a href="#">John B.</a></li>
+		  <li data-role="list-divider">T</li>
+		  <li><a href="#">Tammy D.</a></li>
+		</ul>-->
+		
+		<div data-role="collapsible-set" data-theme="c" data-content-theme="d">
+			<div data-role="collapsible" data-collapsed="false">
+			<h3>Joy</h3>
+			<p>
+				<ol data-role="listview" id="joylist">
+					<li>
+						Voorbeeld van score 
+						<span class="ui-li-count">12</span>
+					  </li>
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Trust</h3>
+			<p>
+				<ol data-role="listview" id="trustlist">
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Fear</h3>
+			<p>
+				<ol data-role="listview" id="fearlist">
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Surprise</h3>
+			<p>
+				<ol data-role="listview" id="surpriselist">
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Sadness</h3>
+			<p>
+				<ol data-role="listview" id="sadnesslist">
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Disgust</h3>
+			<p>
+				<ol data-role="listview" id="disgustlist">
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Anger</h3>
+			<p>
+				<ol data-role="listview" id="angerlist">
+                </ol>
+			</p>
+			</div>
+			
+			<div data-role="collapsible" data-collapsed="true">
+			<h3>Anticipation</h3>
+			<p>
+				<ol data-role="listview" id="anticipationlist">
+                </ol>
+			</p>
+			</div>
+			
+		</div>
+		
+		
     </div>
 	
 	<div id="moodtasks-error" class="errorpopup ui-content" data-role="popup">

@@ -865,7 +865,7 @@ var DataBase = Class.extend({
      *  On success: onSuccess(activities) is called, with activities an array of the the Activity objects,
      *              unless map is set, then Activity is an array of the result of map.
      *  On error: onError(error) is called
-     *  The map function: function(spot) { return activity.name; } results in an array of names.
+     *  The map function: function(spot) { return spot.name; } results in an array of names.
      */
     getAllMoodActivities: function(onSuccess, onError, map) {
         this._getAll('moodActivities', onSuccess, onError, map);
