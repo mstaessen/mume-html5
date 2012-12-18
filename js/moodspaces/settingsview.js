@@ -262,6 +262,27 @@ MSSettingsView.PeopleSettingsFrame = MSSettingsView.SettingsFrame.extend({
     }
 });
 
+/*MSSettingsView.PeopleSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
+    init: function(view) {
+        this._super(view, 'people');
+    },
+    getId: function(elem) {
+        return elem.id ? elem.id : elem.activityid;
+    },
+    storeNewElement: function(name, onSuccess, onError) {
+        this.view.app.database.addMoodActivity(name, onSuccess, onError);
+    },
+    iterateElements: function(iter, onSuccess, onError) {
+        this.view.app.database.iterateMoodActivities(iter, onSuccess, onError);
+    },
+    renameElement: function(id, newName, onSuccess, onError) {
+        this.view.app.database.renameMoodActivity(id, newName, onSuccess, onError);
+    },
+    removeElement: function(id, onSuccess, onError) {
+        this.view.app.database.deactivateMoodActivity(id, onSuccess, onError);
+    }
+});*/
+
 MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
     init: function(view) {
         this._super(view, 'activities');
