@@ -382,9 +382,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 					self.findLocation(event.latLng, this);
 					self.showPopup(this, 'edit');
 				}).click( function() {
-					if(self.popped === 'off'){
-						self.showPopup(this, 'edit');
-					}
+					self.showPopup(this, 'edit');
 				})
 			});
 		});
@@ -400,7 +398,6 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 
         buttons.off('vclick');
         buttons.on('vclick', function() {
-			self.popped = 'on';
             var action = $(this).data('action');
 
             if (action === 'save') {
@@ -439,7 +436,10 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 						);
 					},
 					//onError
-					self.error
+					function(error){
+						marker.setMap(null);
+						self.error(error);
+					}
 				);
             } else{
 				if(mode === 'new'){
@@ -449,7 +449,6 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
             
             $('#settingspopup > input').val('');
             popup.popup('close');
-			self.popped = 'off';
         });
         
         popup.popup('open');
