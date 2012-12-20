@@ -1,3 +1,3 @@
 var MSMoodPeepsView = MSView.extend({
-
+	
 });

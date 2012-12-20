@@ -238,6 +238,19 @@ MSSettingsView.GeneralSettingsFrame = MSSettingsView.SettingsFrame.extend({
     },
     load: function() {
         if (!this._super()) return;
+		var self = this;
+		//'<a id="deletedatabase" data-role="button" data-icon="alert">Let the world end</a>'
+		self.view.content.append(
+			'<a id="deletedatabase" data-role="button" data-icon="alert" data-corners="true"' +
+				' data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="a"' +
+				' class="ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-left ui-btn-up-a">' + 
+			'<span class="ui-btn-inner ui-btn-corner-all">' +
+			'<span class="ui-btn-text">Let the world end</span>' +
+			'<span class="ui-icon ui-icon-alert ui-icon-shadow">&nbsp;</span></span></a>'
+		);
+		$('#deletedatabase').on('vclick', function() {
+			__.database._delete();
+		});
     },
     unload: function() {
         this._super();

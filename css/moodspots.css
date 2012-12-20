@@ -1,17 +1,17 @@
 .html {
-	height: 100%;
+	height: 80%;
 }
 
 .body {
-	height: 100%;
+	height: 80%;
 }
 
 [data-role="page"] {
-	height: 100%;
+	height: 80%;
 }
 
 [data-role="content"] {
-	height: 100%;
+	height: 80%;
 }
 
 .wheelcontainer {
