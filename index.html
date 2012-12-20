@@ -26,6 +26,10 @@
     <link rel="stylesheet" href="css/jquery.mobile-1.2.0.min.css" />
     <link rel="stylesheet" href="css/jquery-mobile-red-buttons.css" />
     
+	<!--For google maps jquery mobile plugin-->
+	<script src="http://maps.google.com/maps/api/js?sensor=true" type="text/javascript"></script>
+	<script src="js/jquery.ui.map.full.min.js" type="text/javascript"></script>
+	
     <!-- SVG JavaScript -->
     <script src="js/svg.js"></script>
 
@@ -64,7 +68,7 @@
     
         <h4>Stats</h4>
         
-        <a href="#moodspots" data-role="button" class="ui-disabled">MoodSpots</a>
+        <a href="#moodspots" data-role="button">MoodSpots</a>
         <a href="#moodpeeps" data-role="button">MoodPeeps</a>
         <a href="#moodtimes" data-role="button" class="ui-disabled">MoodTimes</a>
         <a href="#moodtasks" data-role="button">MoodTasks</a>
@@ -123,8 +127,7 @@
     <div data-role="header">
         <h1>MoodSpots</h1>
     </div>
-    <div data-role="content">   
-        <p>TODO: mood spots</p>     
+    <div data-role="content">  
     </div>
 	
 	<div id="moodspots-error" class="errorpopup ui-content" data-role="popup">
