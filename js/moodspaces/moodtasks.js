@@ -10,23 +10,11 @@ var MSMoodTasksView = MSView.extend({
 			this.moods[i] = bigMoods[i].label;
 		}
 		this.scoreMultiplier = 100;
-		
     },
     load: function() {
         this.app.log("MSMoodTasksView::load");
         this._super();
 		var self = this;
-		
-		//TODO load the collapsable here and not in the html
-		/*for(var i=0;i<this.moods.length;i++){
-			$("#collapsibleset").append(
-			'<div data-role=collapsible data-collapsed=false data-theme="b" data-content-theme="d"> <h3>' 
-			+ this.moods[i] 
-			+ '</h3> <p> <ol data-role=listview id='
-			+ this.moods[i]
-			+ 'list></ol></p></div>'
-			);
-		}*/
 		
 		
 		this.app.database.getAllMoodActivities(
