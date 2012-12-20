@@ -346,9 +346,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 					self.findLocation(event.latLng, this);
 					self.showPopup(this, 'edit');
 				}).click( function() {
-					if(self.popped === 'off'){
-						self.showPopup(this, 'edit');
-					}
+					self.showPopup(this, 'edit');
 				});
 			},
 			//onSuccess
@@ -371,7 +369,9 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 					self.findLocation(event.latLng, this);
 					self.showPopup(this, 'edit');
 				}).click( function() {
-					self.showPopup(this, 'edit');
+					if(self.popped === 'off'){
+						self.showPopup(this, 'edit');
+					}
 				})
 			});
 		});
