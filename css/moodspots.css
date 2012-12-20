@@ -1,3 +1,19 @@
+.html {
+	height: 100%;
+}
+
+.body {
+	height: 100%;
+}
+
+[data-role="page"] {
+	height: 100%;
+}
+
+[data-role="content"] {
+	height: 100%;
+}
+
 .wheelcontainer {
 	text-align:	center;
 }

@@ -327,7 +327,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
         popup.trigger('create');
         popup.popup();
 		
-		contentpane.append('<div id="map_canvas" style="width:100%;height:400px"></div>');
+		contentpane.append('<div id="map_canvas" style="width:100%;height:100%"></div>');
 		var yourStartLatLng = new google.maps.LatLng(50.883, 4.7);
         $('#map_canvas').gmap({'center': yourStartLatLng, 'zoom':10});
 		

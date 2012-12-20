@@ -23,7 +23,7 @@ var MSMoodSpotsView = MSView.extend({
         popup.trigger('create');
         popup.popup();
 		
-		self.content.append('<div id="map_canvas" style="width:100%;height:400px"></div>')
+		self.content.append('<div id="map_canvas" style="width:100%;height:100%"></div>')
 		// Also works with: var yourStartLatLng = '59.3426606750, 18.0736160278';
         var yourStartLatLng = new google.maps.LatLng(50.883, 4.7);
         $('#map_canvas').gmap({'center': yourStartLatLng, 'zoom':10});
