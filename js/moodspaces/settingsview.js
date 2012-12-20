@@ -344,9 +344,9 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 						self.findLocation(marker.getPosition(), marker);
 				}).dragend(function(event){
 					self.findLocation(event.latLng, this);
-					self.showPopup(this);
+					self.showPopup(this, 'edit');
 				}).click( function() {
-					self.showPopup(this);
+					self.showPopup(this, 'edit');
 				});
 			},
 			//onSuccess
@@ -364,12 +364,12 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 					'bounds': false
 				}, function(map, marker) {
 					self.findLocation(marker.getPosition(), marker);
-					self.showPopup(marker);
+					self.showPopup(marker, 'new');
 				}).dragend(function(event){
 					self.findLocation(event.latLng, this);
-					self.showPopup(this);
+					self.showPopup(this, 'edit');
 				}).click( function() {
-					self.showPopup(this);
+					self.showPopup(this, 'edit');
 				})
 			});
 		});
@@ -378,7 +378,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 		$('#settingspopup').remove();
         this._super();
     },
-	showPopup: function(marker) {
+	showPopup: function(marker, mode) {
         var self = this;
         var buttons = $('#settingspopup > a[data-role=button]');
         var popup = $('#settingspopup');
@@ -433,7 +433,9 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 					self.error
 				);
             } else{
-				marker.setMap(null);
+				if(mode === 'new'){
+					marker.setMap(null);
+				}
 			}
             
             $('#settingspopup > input').val('');
