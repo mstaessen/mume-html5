@@ -327,7 +327,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
         popup.trigger('create');
         popup.popup();
 		
-		contentpane.append('<div id="map_canvas" style="width:100%;height:100%"></div>');
+		contentpane.append('<div id="map_canvas" style="width:100%;height:80%"></div>');
 		var yourStartLatLng = new google.maps.LatLng(50.883, 4.7);
         $('#map_canvas').gmap({'center': yourStartLatLng, 'zoom':10});
 		
@@ -346,7 +346,9 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 					self.findLocation(event.latLng, this);
 					self.showPopup(this, 'edit');
 				}).click( function() {
-					self.showPopup(this, 'edit');
+					if(self.popped === 'off'){
+						self.showPopup(this, 'edit');
+					}
 				});
 			},
 			//onSuccess
@@ -385,19 +387,13 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 
         buttons.off('vclick');
         buttons.on('vclick', function() {
+			self.popped = 'on';
             var action = $(this).data('action');
 
             if (action === 'save') {
 				var newName = $('#settingspopup > input').val();
 				var latitude = marker.getPosition().lat();
 				var longitude = marker.getPosition().lng();
-				self.view.app.log(marker.getPosition().lat());
-				self.view.app.log(marker.getPosition().lng());
-				
-                /*alert(action + ' is clicked with name ' + newName + 
-					'\n' +
-					marker.getPosition()) + '\nlat: ' + latitude + ' long: ' + longitude;*/
-				self.view.app.log(marker.getPosition());
 				self.storeNewElement(
 					// new name
 					newName,
@@ -440,6 +436,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
             
             $('#settingspopup > input').val('');
             popup.popup('close');
+			self.popped = 'off';
         });
         
         popup.popup('open');
