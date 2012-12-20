@@ -46,6 +46,8 @@ var DataBase = Class.extend({
                         [
                             'spotid INTEGER PRIMARY KEY AUTOINCREMENT',
                             'name TEXT UNIQUE NOT NULL',
+							'latitude REAL NOT NULL',
+							'longitude REAL NOT NULL',
                             'active BOOLEAN NOT NULL DEFAULT TRUE'
                         ]
                     );
@@ -358,7 +360,7 @@ var DataBase = Class.extend({
      *  On error: onError(error) is called
      *  If the MoodSpot already exists, onErorr(AlreadyExistsException) is called
      */
-    addMoodSpot: function(name, onSuccess, onError) {
+    addMoodSpot: function(name, latitude, longitude, onSuccess, onError) {
         var self = this;
         
         self.hasMoodSpot(name, function(found) {
@@ -385,7 +387,7 @@ var DataBase = Class.extend({
             
             try {
                 self._transaction(function(tx) {
-                    self._insert(tx, 'moodSpots', 'name', name,
+                    self._insert(tx, 'moodSpots', ['name','latitude','longitude'], [name, latitude, longitude],
                         // onSuccess
                         function() {
                             self.getMoodSpotId(name, onSuccess, onError);
@@ -443,6 +445,42 @@ var DataBase = Class.extend({
             onError(error);
         }
     },
+    getMoodSpotIdForLatLng: function(latitude, longitude, onSuccess, onError) {
+        try {
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodSpots',
+                        // column
+                        'spotid AS id',
+                        // WHERE
+                        'latitude == ? AND longitude = ?',
+                        // arguments
+                        [latitude, longitude],
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodSpot with name" + name + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0).id);
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
+                }
+            );
+        } catch (error) {
+            onError(error);
+        }
+    },
     /* DataBase::getMoodSpot(Integer id, Function onSuccess, Function onError)
      *
      *  On success: onSuccess(name) is called with the name of the moodspot
@@ -460,7 +498,7 @@ var DataBase = Class.extend({
                         // Table
                         'moodSpots',
                         // column
-                        'name',
+                        ['name','latitude','longitude'],
                         // WHERE
                         'spotid == "' + id + '"',
                         // arguments
