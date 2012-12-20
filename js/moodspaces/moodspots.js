@@ -46,6 +46,7 @@ var MSMoodSpotsView = MSView.extend({
     },
     unload: function() {
         this.app.log("MSMoodSpotsView::unload");
+		$('#settingspopup').remove();
         this._super();
     },
 	showPopup: function(marker) {
