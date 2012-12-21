@@ -25,6 +25,9 @@ var MSMoodSpotsView = MSView.extend({
 		this.app.database.iterateMoodSpots(
 			//iter
 			function(spot){
+				if(spot.active !== 'TRUE') {
+					return;
+				}
 				var spotPosition = new google.maps.LatLng(spot.latitude, spot.longitude);
 				$('#map_canvas').gmap('addMarker', 
 					{
