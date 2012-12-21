@@ -89,7 +89,7 @@ MSSettingsView.ListSettingsFrame = MSSettingsView.SettingsFrame.extend({
         
         popup.trigger('create');
         popup.popup();
-		popup.popup('close');
+		//popup.popup('close');
         
         // Create the list
         contentpane.append('<ul data=role="listview" data-filter-placeholder="true" data-table-role="settingslist"></ul>');
