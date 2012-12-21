@@ -31,7 +31,7 @@ var MSMoodTasksView = MSView.extend({
         this.app.log("MSMoodTasksView::unload");
         this._super();
 		for(var i=0; i<this.moods.length; i++){
-			$('#' + this.moods[i] + 'list').empty().listview('refresh');
+			$('#tasks' + this.moods[i] + 'list').empty().listview('refresh');
 		}
     },
 	calcActivityMoods: function(activities) {
@@ -71,7 +71,7 @@ var MSMoodTasksView = MSView.extend({
 					
 					//Add the sorted data to the list:
 					//Retrieve the list, data is created using self.moods, so we can use this.
-					var list = $('#' + currentMood + 'list');
+					var list = $('#tasks' + currentMood + 'list');
 					for(var m=0; m<activityIDs.length; m++){
 						var currentIndex = sortedIndex[m];
 						var currentScore = currentMoodData[currentIndex];

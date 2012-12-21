@@ -62,7 +62,7 @@ var MSMoodPeepsView = MSView.extend({
         this.app.log("MSMoodPeepsView::unload");
         this._super();
 		for(var i=0; i<this.moods.length; i++){
-			$('#' + this.moods[i] + 'list').empty().listview('refresh');
+			$('#peeps' + this.moods[i] + 'list').empty().listview('refresh');
 		}
     },
 	calcPersonMoods: function(persons) {
@@ -103,7 +103,7 @@ var MSMoodPeepsView = MSView.extend({
 							
 							//Add the sorted data to the list:
 							//Retrieve the list, data is created using self.moods, so we can use this.
-							var list = $('#' + currentMood + 'list');
+							var list = $('#peeps' + currentMood + 'list');
 							for(var m=0; m<persons.length; m++){
 								var currentIndex = sortedIndex[m];
 								var currentScore = currentMoodData[currentIndex];
