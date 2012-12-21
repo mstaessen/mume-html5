@@ -257,24 +257,6 @@ MSSettingsView.GeneralSettingsFrame = MSSettingsView.SettingsFrame.extend({
     }
 });
 
-/*MSSettingsView.PeopleSettingsFrame = MSSettingsView.SettingsFrame.extend({
-    init: function(view) {
-        this._super(view, 'people');
-    },
-    load: function() {
-        if (!this._super()) return;
-        
-        var view = this.view;
-        
-        view.content.append('<table data-src="people"></table>');
-        
-        var table = $('table[data-src=people]');
-    },
-    unload: function() {
-        this._super();
-    }
-});*/
-
 MSSettingsView.PeopleSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
     init: function(view) {
         this._super(view, 'peeps');
