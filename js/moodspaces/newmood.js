@@ -183,7 +183,7 @@ var MSNewMoodView = MSView.extend({
         , function() {}, this.app.log);
         locationSelect.selectmenu('refresh', true);
         
-        // install the locations to the <select> for activity
+        // install the activities to the <select> for activity
         var activitySelect = $('#newmood-activity');
         this.app.database.iterateMoodActivities(
             function(activity) {
@@ -193,6 +193,18 @@ var MSNewMoodView = MSView.extend({
             }
         , function() {}, this.app.log);
         activitySelect.selectmenu('refresh', true);
+		
+		// install the people to the <select> for people
+        var personSelect = $('#newmood-people');
+        this.app.database.iterateMoodPersons(
+            function(person) {
+                if (person.active !== 'TRUE')
+                    return;
+                personSelect.append('<option value="' + person.peepid + '">' + person.name + '</option>');
+				personSelect.selectmenu('refresh', true);
+            }
+        , function() {}, this.app.log);
+        personSelect.selectmenu('refresh', true);
         
         // install the listeners to cancel and submit
         $('#newmood-cancel').click(function() {
@@ -231,6 +243,12 @@ var MSNewMoodView = MSView.extend({
         activitySelect.empty();
         activitySelect.append('<option value="" disabled="disabled" selected="selected">Activity</option>');
         activitySelect.selectmenu('refresh', true);
+		
+		// clear the activity select and re-init with placeholder
+        var personSelect = $('#newmood-people');
+        personSelect.empty();
+        personSelect.append('<option value="" disabled="disabled" selected="selected">People</option>');
+        personSelect.selectmenu('refresh', true);
         
         // reset the selected location
         this.selectedMood.r = this.selectedMood.phi = 0;
@@ -252,7 +270,8 @@ var MSNewMoodView = MSView.extend({
         var selectedMood = this.selectedMood;
         var selectedActivity = $('#newmood-activity')[0].value;
         var selectedLocation = $('#newmood-location')[0].value;
-        
+		var selectedPeople = $('#newmood-people').val();
+		
         // validate input
         if (selectedMood.r == 0) {
             this.error("Please enter a mood");
@@ -266,8 +285,10 @@ var MSNewMoodView = MSView.extend({
             this.error("Please enter a location");
             return false;
         }
+		//You dont have to specify a person if you don't want
+		
         
-        if (isNaN(selectedActivity) || isNaN(selectedLocation)) {
+        if (isNaN(selectedActivity) || isNaN(selectedLocation) || isNaN(selectedPeople)) {
             this.error("Something's gone wrong. Please refresh and try again. If the problem persists, please contact us @ github.com/mstaessen/mume-html5");
             return false;
         }
@@ -284,7 +305,7 @@ var MSNewMoodView = MSView.extend({
                 spot: +selectedLocation,
                 activity: +selectedActivity,
                 selections: [selectedMood],
-                people: []
+                people: selectedPeople
             },
             // onSuccess
             function() {

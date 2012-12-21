@@ -257,7 +257,7 @@ MSSettingsView.GeneralSettingsFrame = MSSettingsView.SettingsFrame.extend({
     }
 });
 
-MSSettingsView.PeopleSettingsFrame = MSSettingsView.SettingsFrame.extend({
+/*MSSettingsView.PeopleSettingsFrame = MSSettingsView.SettingsFrame.extend({
     init: function(view) {
         this._super(view, 'people');
     },
@@ -269,11 +269,30 @@ MSSettingsView.PeopleSettingsFrame = MSSettingsView.SettingsFrame.extend({
         view.content.append('<table data-src="people"></table>');
         
         var table = $('table[data-src=people]');
-        
-//        view.app.db.
     },
     unload: function() {
         this._super();
+    }
+});*/
+
+MSSettingsView.PeopleSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
+    init: function(view) {
+        this._super(view, 'peeps');
+    },
+    getId: function(elem) {
+        return elem.id ? elem.id : elem.peepid;
+    },
+    storeNewElement: function(name, onSuccess, onError) {
+        this.view.app.database.addMoodPerson(name, onSuccess, onError);
+    },
+    iterateElements: function(iter, onSuccess, onError) {
+        this.view.app.database.iterateMoodPersons(iter, onSuccess, onError);
+    },
+    renameElement: function(id, newName, onSuccess, onError) {
+        this.view.app.database.renameMoodPerson(id, newName, onSuccess, onError);
+    },
+    removeElement: function(id, onSuccess, onError) {
+        this.view.app.database.deactivateMoodPerson(id, onSuccess, onError);
     }
 });
 
@@ -297,27 +316,6 @@ MSSettingsView.ActivitiesSettingsFrame = MSSettingsView.ListSettingsFrame.extend
         this.view.app.database.deactivateMoodActivity(id, onSuccess, onError);
     }
 });
-
-/*MSSettingsView.SpotsSettingsFrame = MSSettingsView.ListSettingsFrame.extend({
-    init: function(view) {
-        this._super(view, 'spots');
-    },
-    getId: function(elem) {
-        return elem.id ? elem.id : elem.spotid;
-    },
-    storeNewElement: function(name, onSuccess, onError) {
-        this.view.app.database.addMoodSpot(name, onSuccess, onError);
-    },
-    iterateElements: function(iter, onSuccess, onError) {
-        this.view.app.database.iterateMoodSpots(iter, onSuccess, onError);
-    },
-    renameElement: function(id, newName, onSuccess, onError) {
-        this.view.app.database.renameMoodSpot(id, newName, onSuccess, onError);
-    },
-    removeElement: function(id, onSuccess, onError) {
-        this.view.app.database.deactivateMoodSpot(id, onSuccess, onError);
-    }
-});*/
 
 MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
     init: function(view) {

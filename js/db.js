@@ -58,6 +58,14 @@ var DataBase = Class.extend({
                             'active BOOLEAN NOT NULL DEFAULT TRUE'
                         ]
                     );
+					
+					self._createTable(tx, 'moodPeeps',
+                        [
+                            'peepid INTEGER PRIMARY KEY AUTOINCREMENT',
+                            'name TEXT UNIQUE NOT NULL',
+                            'active BOOLEAN NOT NULL DEFAULT TRUE'
+                        ]
+                    );
                 
                     self._createTable(tx, 'moodEntries',
                         [
@@ -71,6 +79,8 @@ var DataBase = Class.extend({
                             'FOREIGN KEY (activity) REFERENCES moodActivities(activityid)'
                         ]
                     );
+					
+					
                 },
                 self.error
             );
@@ -328,6 +338,10 @@ var DataBase = Class.extend({
             onError(error);
         }
     },
+	
+	/**********************************
+	 * MoodSpots from here.           *
+	 **********************************/
     
     /* DataBase::hasMoodSpot(String name, Function onSuccess, Function onError)
      *
@@ -700,6 +714,10 @@ var DataBase = Class.extend({
             );
         });
     },
+	
+	/**********************************
+	 * MoodActivities from here.      *
+	 **********************************/
     
     /* DataBase::hasMoodActivity(String name, Function onSuccess, Function onError)
      *
@@ -1078,6 +1096,292 @@ var DataBase = Class.extend({
             );
         });
     },
+	
+	/**********************************
+	 * MoodPeeps from here.           *
+	 **********************************/
+	 
+	 /* DataBase::addMoodPerson(String name, Function onSuccess, Function onError)
+     *
+     *  On success: onSuccess(id) is called with the id of the new MoodPerson
+     *  On error: onError(error) is called
+     *  If the MoodPerson already exists, onError(AlreadyExistsException) is called
+     */
+    addMoodPerson: function(name, onSuccess, onError) {
+        var self = this;
+        self.hasMoodPerson(name, function(found, tx) {
+            if (found) {
+                self.isActiveMoodPerson(name, 
+                    // onSuccess
+                    function (active) {
+                        if (active) {
+                            onError(new AlreadyExistsException("MoodPerson " + name + " already exists"));
+                            return;
+                        } else {
+                            self.activateMoodPerson(name,
+                                function() {
+                                    self.getMoodPersonId(name, onSuccess, onError);
+                                },
+                                onError
+                            );
+                        }
+                    },
+                    onError
+                )
+                return;
+            }
+            
+            try {
+                self._transaction(function(tx) {
+                    self._insert(tx, 'moodPeeps', 'name', name,
+                        // onSuccess
+                        function() {
+                            self.getMoodPersonId(name, onSuccess, onError);
+                        },
+                        // onError
+                        function(tx, err) {
+                            onError(err);
+                        }
+                    );
+                });
+            } catch (error) {
+                onError(error);
+            }
+        }, onError);
+    },
+	
+	/* DataBase::hasMoodPerson(String name, Function onSuccess, Function onError)
+     *
+     *  On success: onSuccess(result) is called, with result true if the moodPerson with the given name exists.
+     *  On failure: onError(error) is called
+     */
+    hasMoodPerson: function(name, onSuccess, onError) {
+        try{
+            this.getMoodPersonId(name,
+                // onSuccess
+                function() {
+                    onSuccess(true);
+                },
+                // onError
+                function(e) {
+                    if (e instanceof NotFoundException) {
+                        onSuccess(false);
+                    } else {
+                        onError(e);
+                    }
+                }
+            );
+        } catch (error) {
+            onError(error);
+        }
+    },
+	/* DataBase::isActiveMoodPerson(var id, Function onSuccess, Function onError)
+     *
+     *  Check if the moodPerson with (peepid == id) || (name == id) is active
+     *  On success: onSuccess(active) is called, with active a boolean
+     *  On error: onError(error) is called
+     */
+    isActiveMoodPerson: function(id, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._select(
+                // Transaction
+                tx,
+                // Table
+                'moodPeeps',
+                // column
+                'active',
+                // WHERE
+                'peepid == ? OR name == ?',
+                // args
+                [id, id],
+                // onSuccess
+                function (tx, res) {
+                    var rows = res.rows;
+                    if (rows.length == 0) {
+                        onError(new NotFoundException("MoodPerson with id" + id + "doesn't exist"));
+                    } else {
+                        onSuccess(rows.item(0).active == 'TRUE');
+                    }
+                },
+                // onError
+                function (tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
+	
+	/* DataBase::activateMoodPerson(var id, Function onSuccess, Function onError)
+     *
+     *  Activates the MoodPerson with (peepid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+	activateMoodPerson: function(id, onSuccess, onError) {
+        this.setActiveMoodPerson(id, true, onSuccess, onError);
+    },
+	
+	/* DataBase::deactivateMoodPerson(var id, Function onSuccess, Function onError)
+     *
+     *  Activates the MoodPerson with (peepid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    deactivateMoodPerson: function(id, onSuccess, onError) {
+        this.setActiveMoodPerson(id, false, onSuccess, onError);
+    },
+	
+	/* DataBase::setActiveMoodPerson(var id, boolean active, Function onSuccess, Function onError)
+     *
+     *  Sets (active = (active?'TRUE':'FALSE') for the MoodPerson with (peepid == id) || (name == id)
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    setActiveMoodPerson: function(id, active, onSuccess, onError) {
+        var self = this;
+        
+        self._transaction(function(tx) {
+            self._update(
+                // Transaction
+                tx,
+                // Table
+                'moodPeeps',
+                // Column to change
+                'active',
+                // new value
+                active ? 'TRUE' : 'FALSE',
+                // WHERE
+                'name == ? OR peepid = ?',
+                // args
+                [id, id],
+                // onSuccess
+                function() {
+                    onSuccess();
+                },
+                // onError
+                function(tx, err) {
+                    onError(err);
+                }
+            );
+        });
+    },
+	
+	/* DataBase::renameMoodPerson(Integer id, String newName, Function onSuccess, Function onError)
+     *
+     * Renames the MoodPerson with the given id.
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     */
+    renameMoodPerson: function(id, newName, onSuccess, onError) {
+        var self = this;
+        
+        this.hasMoodPerson(newName,
+            function(found) {
+                if (found) {
+                    onError(new AlreadyExistsException("MoodPerson " + newName + " already exists"));
+                    return;
+                }
+                
+                self._transaction(function(tx) {
+                    self._update(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodPeeps',
+                        // Column(s) to change
+                        'name',
+                        // The new value(s)
+                        newName,
+                        // WHERE
+                        'peepid = ?',
+                        // args
+                        [id],
+                        // onSuccess
+                        function() {
+                            onSuccess();
+                        },
+                        // onError
+                        function(tx, err) {
+                            onError(err);
+                        }
+                    );
+                });
+            },
+            onError
+        )
+    },
+	
+	/* DataBase::getMoodPersonId(String name, Function onSuccess, Function onError)
+     *
+     *  On success: onSuccess(id) is called with the Id of the MoodPerson
+     *  If not found: onError(NotFoundException)
+     *  On error: onError(Error)
+     */
+    getMoodPersonId: function(name, onSuccess, onError) {
+        try {
+            var self = this;
+            self._transaction(
+                function(tx) {
+                    self._select(
+                        // Transaction
+                        tx,
+                        // Table
+                        'moodPeeps',
+                        // column
+                        'peepid AS id',
+                        // WHERE
+                        'name == "' + name + '"',
+                        // arguments
+                        null,
+                        // onSuccess
+                        function (tx, res) {
+                            var rows = res.rows;
+                            if (rows.length == 0) {
+                                onError(new NotFoundException("MoodPerson with name" + name + "doesn't exist"));
+                            } else {
+                                onSuccess(rows.item(0).id);
+                            }
+                        },
+                        // onError
+                        function (tx, err) {
+                            onError(err);
+                        }
+                    );
+                }
+            );
+        } catch (error) {
+            onError(error);
+        }
+    },
+	
+	/* DataBase::iterateMoodPersons(Function iter, Function onSuccess, Function onErorr[, Function map])
+     *
+     *  On success: onSuccess() is called
+     *  On error: onError(error) is called
+     *  Each MoodPerson: iter(map(person)) is called, with person a MoodPerson
+     *  If map is not given, map is the identity function
+     */
+    iterateMoodPersons: function(iter, onSuccess, onError, map) {
+        this._iterate('moodPeeps', iter, onSuccess, onError, map);
+    },
+	
+	/* DataBase::getAllMoodPersons(Function onSuccess, Function onError[, Function map])
+     *
+     *  On success: onSuccess(persons) is called, with persons an array of the the MoodPerson objects,
+     *              unless map is set, then persons is an array of the result of map.
+     *  On error: onError(error) is called
+     *  The map function: function(person) { return person.name; } results in an array of names.
+     */
+    getAllMoodPersons: function(onSuccess, onError, map) {
+        this._getAll('moodPeeps', onSuccess, onError, map);
+    },
+	 
+
+	/**********************************
+	 * MoodEntry from here.           *
+	 **********************************/
 
     /* The MoodEntry object:
      *  (var)                   timestamp:  a timestamp
@@ -1173,6 +1477,7 @@ var DataBase = Class.extend({
             function(tx) {
                 tx.executeSql('DROP TABLE moodActivities;');
                 tx.executeSql('DROP TABLE moodSpots');
+				tx.executeSql('DROP TABLE moodPeeps');
                 tx.executeSql('DROP TABLE moodEntries');
             },
             this.error

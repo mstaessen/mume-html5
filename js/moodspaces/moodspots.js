@@ -44,6 +44,8 @@ var MSMoodSpotsView = MSView.extend({
 		
 		this.app.database.getAllMoodSpots(
 			function(spots) {
+				if(spots.length === 0)
+					return;
 				self.calcSpotMoods(spots);
 			},
 			self.error,
