@@ -39,7 +39,7 @@ var DataBase = Class.extend({
             } else throw(e);
         }
         
-        if (db.version == '' || db.version == '0') {
+        if (db.version == '' || db.version == '0' || db.version == '1') {
             db.changeVersion(db.version, '1',
                 function(tx) {
                     self._createTable(tx, 'moodSpots',
