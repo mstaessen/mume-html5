@@ -80,7 +80,15 @@ var DataBase = Class.extend({
                         ]
                     );
 					
-					
+					self._createTable(tx, 'entryPeeps',
+                        [
+                            'entrypeepid INTEGER PRIMARY KEY AUTOINCREMENT',
+							'entry INT NOT NULL',
+                            'person INT NOT NULL',
+                            'FOREIGN KEY (entry) REFERENCES moodEntries(entryid)',
+							'FOREIGN KEY (person) REFERENCES moodPeeps(peepid)'
+                        ]
+                    );
                 },
                 self.error
             );
@@ -1411,6 +1419,7 @@ var DataBase = Class.extend({
         console.log(entry);
         
         try {
+		
             self._transaction(function(tx) {
                 self._insert(
                     // Transaction
@@ -1435,7 +1444,27 @@ var DataBase = Class.extend({
                     ],
                     // onSuccess
                     function() {
-                        onSuccess();
+						self.getAllMoodEntries(
+							function(entries){
+								var newlyAddedEntryid = entries[entries.length-1].entryid;
+								//Retrieve the entryid of the just added entry
+								//Add the people to the entrypeople table
+								for(var j = 0; j < entry.people.length; j++) {
+									self.addEntryPeople(
+										newlyAddedEntryid, 
+										entry.people[j], 
+										function(){},
+										function(tx, err) {
+											onError(err);
+										}
+									);
+								}
+								onSuccess();
+							},
+							function(tx, err){
+								onError(err);
+							}
+						);
                     },
                     // onError
                     function(tx, err) {
@@ -1470,6 +1499,75 @@ var DataBase = Class.extend({
         this._iterate('moodEntries', iter, onSuccess, onError, map);
     },
 	
+	/**********************************
+	 * entryPeeps from here.          *
+	 **********************************/
+	
+	/* DataBase::addEntryPeople(entryid, peepid, Function onSuccessm, Function onError)
+     *
+     * On success: onSuccess() is called
+     * On error: onError(error) is called
+     */
+    addEntryPeople: function(entryid, peepid, onSuccess, onError) {
+        
+        var self = this;
+        
+        console.log('entry: ' + entryid + ' and person: ' + peepid + ' are linked now');
+        
+        try {
+            self._transaction(function(tx) {
+                self._insert(
+                    // Transaction
+                    tx,
+                    // Table
+                    'entryPeeps',
+                    // columns
+                    [
+                        'entry',
+                        'person'
+                    ],
+                    // values
+                    [
+                        entryid,
+                        peepid
+                    ],
+                    // onSuccess
+                    function() {
+                        onSuccess();
+                    },
+                    // onError
+                    function(tx, err) {
+                        onError(err);
+                    }
+                );
+            });
+        } catch (error) {
+            onError(error);
+        }
+    },
+	
+	/* DataBase::getAllEntryPeople(Function onSuccess, Function onError[, Function map])
+     *
+     *  On success: onSuccess(entrypeople) is called, with entrypeople an array of the the EntryPeople objects,
+     *              unless map is set, then entrypeople is an array of the result of map.
+     *  On error: onError(error) is called
+     *  The map function: function(entryperson) { return entryperson.entry; } results in an array of entryIDs.
+     */
+    getAllEntryPeople: function(onSuccess, onError, map) {
+        this._getAll('entryPeeps', onSuccess, onError, map);
+    },
+	
+	/* DataBase::getAllEntryPeopleForEntry(entryID, Function onSuccess, Function onError[, Function map])
+     *
+     *  On success: onSuccess(entrypeople) is called, with entrypeople an array of the the EntryPeople objects,
+     *              unless map is set, then entrypeople is an array of the result of map.
+     *  On error: onError(error) is called
+     *  The map function: function(entryperson) { return entryperson.entry; } results in an array of entryIDs.
+     */
+    getAllEntryPeopleForEntry: function(entryID, onSuccess, onError, map) {
+        this._getAll('entryPeeps', onSuccess, onError, map, ['entry', 'person'], 'entry == "' + entryID + '"');
+    },
+	
     // which getters? (allow to iterate, allow to get all entries of a day ...
         
     _delete : function() {
@@ -1479,6 +1577,7 @@ var DataBase = Class.extend({
                 tx.executeSql('DROP TABLE moodSpots');
 				tx.executeSql('DROP TABLE moodPeeps');
                 tx.executeSql('DROP TABLE moodEntries');
+				tx.executeSql('DROP TABLE entryPeeps');
             },
             this.error
         );

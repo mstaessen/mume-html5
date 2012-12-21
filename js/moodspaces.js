@@ -4,6 +4,8 @@ var MoodSpaces = Class.extend({
         
         var self = this;
         
+		this.scoreMultiplier = 100;
+		this.maxRadius = 1500;
         this.database = new DataBase(this, 'MoodSpaces');
 
         this.mainView = new MSMainView(this);
@@ -15,7 +17,7 @@ var MoodSpaces = Class.extend({
         this.settingsView = new MSSettingsView(this);
         
         this.currentView = this.mainView;
-        
+		
         $('#home').live('pageshow', function(event) {
             self.mainView.load();
         });

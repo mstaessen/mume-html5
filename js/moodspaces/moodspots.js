@@ -9,8 +9,8 @@ var MSMoodSpotsView = MSView.extend({
 		for(var i=0; i< this.bigMoods.length; i++ ){
 			this.moods[i] = this.bigMoods[i].label;
 		}
-		this.scoreMultiplier = 100;
-		this.maxRadius = 1500;
+		this.scoreMultiplier = app.scoreMultiplier;
+		this.maxRadius = app.maxRadius;
     },
     load: function() {
         this.app.log("MSMoodSpotsView::load");

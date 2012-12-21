@@ -271,7 +271,7 @@ var MSNewMoodView = MSView.extend({
         var selectedActivity = $('#newmood-activity')[0].value;
         var selectedLocation = $('#newmood-location')[0].value;
 		var selectedPeople = $('#newmood-people').val();
-		
+		this.app.log(selectedPeople);
         // validate input
         if (selectedMood.r == 0) {
             this.error("Please enter a mood");
@@ -288,7 +288,7 @@ var MSNewMoodView = MSView.extend({
 		//You dont have to specify a person if you don't want
 		
         
-        if (isNaN(selectedActivity) || isNaN(selectedLocation) || isNaN(selectedPeople)) {
+        if (isNaN(selectedActivity) || isNaN(selectedLocation)) {
             this.error("Something's gone wrong. Please refresh and try again. If the problem persists, please contact us @ github.com/mstaessen/mume-html5");
             return false;
         }

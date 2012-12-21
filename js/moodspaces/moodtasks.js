@@ -9,7 +9,7 @@ var MSMoodTasksView = MSView.extend({
 		for(var i=0; i< bigMoods.length; i++ ){
 			this.moods[i] = bigMoods[i].label;
 		}
-		this.scoreMultiplier = 100;
+		this.scoreMultiplier = app.scoreMultiplier;
     },
     load: function() {
         this.app.log("MSMoodTasksView::load");
