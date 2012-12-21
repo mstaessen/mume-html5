@@ -7,11 +7,11 @@
 }
 
 [data-role="page"] {
-	height: 90%;
+	height: 80%;
 }
 
 [data-role="content"] {
-	height: 90%;
+	height: 80%;
 }
 
 .wheelcontainer {
