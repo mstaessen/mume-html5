@@ -245,11 +245,11 @@ MSSettingsView.GeneralSettingsFrame = MSSettingsView.SettingsFrame.extend({
 				' data-shadow="true" data-iconshadow="true" data-wrapperels="span" data-theme="r"' +
 				' class="ui-btn ui-shadow ui-btn-corner-all ui-btn-icon-left ui-btn-up-r">' + 
 			'<span class="ui-btn-inner ui-btn-corner-all">' +
-			'<span class="ui-btn-text">Let the world end</span>' +
+			'<span class="ui-btn-text">Delete database</span>' +
 			'<span class="ui-icon ui-icon-alert ui-icon-shadow">&nbsp;</span></span></a>'
 		);
 		$('#deletedatabase').on('vclick', function() {
-			__.database._delete();
+			self.view.app.database._delete();
 		});
     },
     unload: function() {
@@ -440,17 +440,7 @@ MSSettingsView.SpotsSettingsFrame = MSSettingsView.SettingsFrame.extend({
 		var self = this;
 		$('#map_canvas').gmap('search', {'location': location}, function(results, status) {
 			if ( status === 'OK' ) {
-				$.each(results[0].address_components, function(i,v) {
-					if ( v.types[0] == "administrative_area_level_1" || 
-						 v.types[0] == "administrative_area_level_2" ) {
-						//$('#state'+marker.__gm_id).val(v.long_name);
-					} else if ( v.types[0] == "country") {
-						//$('#country'+marker.__gm_id).val(v.long_name);
-					}
-				});
 				marker.setTitle(results[0].formatted_address);
-				//$('#address'+marker.__gm_id).val(results[0].formatted_address);
-				//self.showPopup(marker);
 			}
 		});
 	},
