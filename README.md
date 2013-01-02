@@ -1,6 +1,8 @@
 # mume-html5
 
 This repository contains the source code of the HTML5 application for the Multimedia Course at KU Leuven, Belgium.
+To run the project, simply clone this repository and run the index.html file in your browser.
+If you want to run the application on a device, go to http://mstaessen.github.com/mume-html5/ on your device browser.
 
 ## HTML5 Features
 
